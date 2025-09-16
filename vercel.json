@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "env": {
+        "NODE_ENV": "production"
+    },
+    "builds": [
+        {
+            "src": "server.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "index.html",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "assets/**",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "*.css",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "*.js",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(form|otp|tele)/.*",
+            "dest": "server.js"
+        },
+        {
+            "src": "/health",
+            "dest": "server.js"
+        }
+    ]
+}

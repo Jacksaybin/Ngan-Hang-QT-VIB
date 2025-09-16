@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>VIB - Trang Chủ (Tái tạo)</title>
+    <link rel="stylesheet" href="full-homepage.css" />
+</head>
+
+<body>
+    <!-- Thanh tiện ích trên cùng (mini utility bar) -->
+    <div class="utility-bar" aria-label="Thanh tiện ích">
+        <div class="u-left">
+            <a href="#atm" class="u-link">ATM & Chi nhánh</a>
+            <a href="#hotline" class="u-link">Tổng đài 1900 2200</a>
+        </div>
+        <div class="u-right">
+            <a href="#myvib" class="u-link">Ngân hàng di động MyVIB</a>
+            <a href="#en" class="u-link">English</a>
+        </div>
+    </div>
+
+    <!-- Header + Mega Menu -->
+    <header class="main-header" aria-label="Đầu trang">
+        <div class="header-inner">
+            <button class="hamburger" aria-label="Mở menu" aria-expanded="false">☰</button>
+            <a class="brand" href="#" aria-label="Trang chủ VIB">
+                <img src="assets/logo.png" alt="VIB Logo" />
+            </a>
+            <div class="header-actions">
+                <button class="search-btn" aria-label="Tìm kiếm">🔍</button>
+            </div>
+            <nav class="primary-nav" aria-label="Điều hướng chính">
+                <ul>
+                    <li class="has-mega"><a href="#the">Thẻ tín dụng <span class="arrow" aria-hidden="true">▼</span></a>
+                        <div class="mega" aria-label="Menu Thẻ tín dụng" hidden>
+                            <ul class="mega-list">
+                                <li>Thẻ tín dụng</li>
+                                <li>Thẻ thanh toán</li>
+                                <li>Mở Thẻ Tín Dụng VIB</li>
+                                <li>Nâng Hạn Mức Thẻ</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#taikhoan">Tài khoản <span class="arrow"
+                                aria-hidden="true">▼</span></a>
+                        <div class="mega" aria-label="Menu Tài khoản" hidden>
+                            <ul class="mega-list">
+                                <li>Tài khoản Siêu lợi suất</li>
+                                <li>Tài khoản thanh toán</li>
+                                <li>Tiền gửi có kỳ hạn</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#tietkiem">Tiết kiệm <span class="arrow"
+                                aria-hidden="true">▼</span></a>
+                        <div class="mega" aria-label="Menu Tiết kiệm" hidden>
+                            <ul class="mega-list">
+                                <li>Tiền gửi có kỳ hạn</li>
+                                <li>Tiết kiệm online</li>
+                                <li>Combo ưu đãi</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#vay">Vay <span class="arrow" aria-hidden="true">▼</span></a>
+                        <div class="mega" aria-label="Menu Vay" hidden>
+                            <ul class="mega-list">
+                                <li>Vay bất động sản</li>
+                                <li>Vay mua xe</li>
+                                <li>Vay Siêu linh hoạt</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#baohiem">Bảo hiểm <span class="arrow" aria-hidden="true">▼</span></a>
+                        <div class="mega" aria-label="Menu Bảo hiểm" hidden>
+                            <ul class="mega-list">
+                                <li>Sức khỏe</li>
+                                <li>Nhân thọ</li>
+                                <li>Gia đình</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li><a href="#uudai">Ưu đãi</a></li>
+                    <li><a href="#tintuc">Tin tức</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Overlay tìm kiếm -->
+    <div class="search-overlay" hidden>
+        <div class="search-box">
+            <input type="text" placeholder="Nhập từ khóa..." aria-label="Ô tìm kiếm" />
+            <button class="close-search" aria-label="Đóng tìm kiếm">✕</button>
+        </div>
+    </div>
+
+    <!-- Hero Carousel: khu vực trình chiếu các banner chính -->
+    <section class="hero" aria-label="Khu vực nổi bật">
+        <div class="carousel" data-carousel>
+            <div class="carousel-progress" aria-hidden="true"><span class="bar"></span></div>
+            <div class="carousel-track">
+                <div class="slide active" style="--bg:url('assets/bannerweb-1.png')">
+                    <div class="slide-content">
+
+                        <div class="slide" style="--bg:url('assets/bannerweb-2.png')">
+                            <div class="slide-content">
+
+                                <div class="slide" style="--bg:url('assets/Bannerweb-3.png')">
+                                    <div class="slide-content">
+                                        <div class="slide" style="--bg:url('assets/Bannerweb-4.png')">
+                                            <div class="slide-content">
+                                            </div>
+                                            <button class="carousel-control prev" aria-label="Trước">‹</button>
+                                            <button class="carousel-control next" aria-label="Sau">›</button>
+                                            <div class="carousel-dots" role="tablist" aria-label="Chọn slide"></div>
+                                        </div>
+    </section>
+
+    <!-- Khối Ưu đãi nổi bật: hiển thị các ưu đãi tiêu biểu cho khách hàng -->
+    <section class="promotions" id="uudai" aria-labelledby="uudai-title">
+        <div class="section-header">
+            <h2 id="uudai-title">Ưu đãi nổi bật</h2>
+            <a href="#tatcauudai" class="view-all">Xem tất cả →</a>
+        </div>
+        <div class="promo-grid">
+            <article class="promo-card">
+                <h3>Giảm đến 4,6 triệu</h3>
+                <p>Áp dụng cho sản phẩm tín dụng được chọn.</p>
+                <a href="#uudai1" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <h3>Giảm đến 50%</h3>
+                <p>Nạp tiền di động trả trước trên MyVIB.</p>
+                <a href="#uudai2" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <h3>Hoàn tiền đến 30%</h3>
+                <p>Tối đa 3 triệu đồng giao dịch online.</p>
+                <a href="#uudai3" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <h3>Ưu đãi bảo hiểm</h3>
+                <p>Bảo vệ toàn diện cho gia đình bạn.</p>
+                <a href="#uudai4" class="text-link">Chi tiết</a>
+            </article>
+        </div>
+    </section>
+
+    <!-- Danh mục sản phẩm (thẻ/tab): người dùng chọn nhóm sản phẩm để xem nhanh -->
+    <section class="product-categories" aria-labelledby="cat-title">
+        <h2 id="cat-title">Sản phẩm dành cho bạn</h2>
+        <div class="tabs" role="tablist">
+            <button role="tab" aria-selected="true" class="tab active" data-tab="the">Thẻ</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="tai-khoan">Tài khoản</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="tiet-kiem">Tiết kiệm</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="vay">Vay</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="bao-hiem">Bảo hiểm</button>
+        </div>
+        <div class="tab-panels">
+            <div class="panel active" data-panel="the">
+                <ul class="card-list">
+                    <li>Mở Thẻ Tín Dụng VIB</li>
+                    <li>Nâng Hạn Mức Thẻ</li>
+                    <li>Hủy Thẻ 24H</li>
+                </ul>
+            </div>
+            <div class="panel" data-panel="tai-khoan">
+                <p>Tài khoản thanh toán linh hoạt.</p>
+            </div>
+            <div class="panel" data-panel="tiet-kiem">
+                <p>Lãi suất hấp dẫn, gửi linh hoạt.</p>
+            </div>
+            <div class="panel" data-panel="vay">
+                <p>Giải pháp vay tiêu dùng đa dạng.</p>
+            </div>
+            <div class="panel" data-panel="bao-hiem">
+                <p>Sản phẩm bảo hiểm an tâm.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tin tức & Ưu đãi khác: các bài viết mới và nội dung truyền thông -->
+    <section class="news" aria-labelledby="news-title">
+        <div class="section-header">
+            <h2 id="news-title">Tin tức & Bản tin</h2>
+            <a href="#tatcanews" class="view-all">Xem tất cả →</a>
+        </div>
+        <div class="news-grid">
+            <article class="news-item">
+                <h3>Tăng trưởng bền vững</h3>
+                <p>VIB công bố kết quả kinh doanh quý mới.</p>
+                <a href="#news1" class="text-link">Đọc thêm</a>
+            </article>
+            <article class="news-item">
+                <h3>Chuyển đổi số</h3>
+                <p>Gia tăng trải nghiệm người dùng MyVIB.</p>
+                <a href="#news2" class="text-link">Đọc thêm</a>
+            </article>
+            <article class="news-item">
+                <h3>CSR & Cộng đồng</h3>
+                <p>Hoạt động thiện nguyện đồng hành.</p>
+                <a href="#news3" class="text-link">Đọc thêm</a>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer" aria-label="Chân trang">
+        <div class="footer-columns">
+            <div class="f-col">
+                <h4>Sản phẩm</h4>
+                <ul>
+                    <li><a href="#the">Thẻ tín dụng</a></li>
+                    <li><a href="#taikhoan">Tài khoản</a></li>
+                    <li><a href="#tietkiem">Tiết kiệm</a></li>
+                    <li><a href="#vay">Vay</a></li>
+                </ul>
+            </div>
+            <div class="f-col">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#lienhe">Liên hệ</a></li>
+                    <li><a href="#tygia">Tỷ giá</a></li>
+                    <li><a href="#dieukhoan">Điều khoản</a></li>
+                    <li><a href="#baomat">Bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="f-col">
+                <h4>Khác</h4>
+                <ul>
+                    <li><a href="#nhadautu">Nhà đầu tư</a></li>
+                    <li><a href="#tuyendung">Tuyển dụng</a></li>
+                    <li><a href="#uudai">Ưu đãi</a></li>
+                    <li><a href="#tintuc">Tin tức</a></li>
+                </ul>
+            </div>
+            <div class="f-col">
+                <h4>Kết nối</h4>
+                <p>Theo dõi chúng tôi:</p>
+                <div class="socials">
+                    <a href="#fb" aria-label="Facebook">FB</a>
+                    <a href="#yt" aria-label="YouTube">YT</a>
+                    <a href="#ln" aria-label="LinkedIn">IN</a>
+                </div>
+            </div>
+        </div>
+        <div class="legal">© 2025 Ngân hàng Quốc Tế Việt Nam (VIB).</div>
+    </footer>
+
+    <!-- Nút nổi -->
+    <button class="back-to-top" aria-label="Lên đầu trang" hidden>↑</button>
+
+    <script src="full-homepage.js"></script>
+</body>
+
+</html>

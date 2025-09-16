@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xác thực OTP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background:#f8f9fa; }
+    .otp-input {
+      width: 3rem; height: 3.5rem; text-align: center; font-size: 1.5rem;
+      border: 1px solid #ced4da; border-radius: .5rem;
+    }
+    .otp-input:focus { border-color: #0d6efd; box-shadow: 0 0 0 .2rem rgba(13,110,253,.25); }
+    .timer { font-variant-numeric: tabular-nums; }
+    .brand-accent { color:#0d6efd }
+  </style>
+</head>
+<body>
+  <main class="container py-4">
+    <!-- Header -->
+    <div class="mb-4">
+      <div class="small text-muted">Bước 2/2</div>
+      <h1 class="h4 mb-1">Xác thực mã OTP</h1>
+      <p class="text-muted mb-0">
+        Mã gồm <strong>6 chữ số</strong> đã gửi đến số <strong id="maskedPhone">+84 •••• ••89</strong>.
+      </p>
+      <p class="text-muted">Vui lòng nhập mã để xác nhận yêu cầu tạm khóa/hủy thẻ.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <!-- Alert -->
+        <div id="alertBox" class="alert alert-danger d-none" role="alert"></div>
+
+        <!-- Form -->
+        <form id="otpForm" novalidate>
+          <div class="d-flex gap-2 justify-content-center my-3" aria-label="Nhập 6 số OTP">
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Số 1" />
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 2" />
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 3" />
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 4" />
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 5" />
+            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 6" />
+          </div>
+
+          <div class="text-center mb-3">
+            <span class="text-muted">Mã sẽ hết hạn trong </span>
+            <span id="countdown" class="fw-semibold timer">01:00</span>
+          </div>
+
+          <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <button id="btnConfirm" type="submit" class="btn btn-primary px-4" disabled>
+              Xác nhận
+            </button>
+            <button id="btnResend" type="button" class="btn btn-outline-secondary px-4" disabled>
+              Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)
+            </button>
+            <a href="javascript:history.back()" class="btn btn-link">Quay lại</a>
+          </div>
+        </form>
+
+        <hr class="my-4">
+        <div class="small text-muted">
+          <ul class="mb-0">
+            <li>Không chia sẻ mã OTP cho bất kỳ ai, kể cả nhân viên ngân hàng.</li>
+            <li>Nếu không nhận được mã sau 60 giây, bấm <span class="brand-accent">Gửi lại mã</span>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ===== CẤU HÌNH(sửa theo hệ thống của bạn) =====
+    const REQUEST_ID = sessionStorage.getItem('requestId') || 'temp-request-id';
+    const MASKED_PHONE = sessionStorage.getItem('maskedPhone') || '+84 •••• ••89';
+    document.getElementById('maskedPhone').innerText = MASKED_PHONE;
+
+    // ===== BIẾN THAM CHIẾU =====
+    const inputs = Array.from(document.querySelectorAll('.otp-input'));
+    const btnConfirm = document.getElementById('btnConfirm');
+    const btnResend  = document.getElementById('btnResend');
+    const alertBox   = document.getElementById('alertBox');
+    const countdownEl = document.getElementById('countdown');
+
+    // ===== HELPER =====
+    const getOTP = () => inputs.map(i => i.value).join('');
+    const allFilled = () => inputs.every(i => i.value.length === 1);
+    const pad = (n) => n.toString().padStart(2, '0');
+    function showError(msg){ alertBox.textContent = msg; alertBox.classList.remove('d-none'); }
+    function clearError(){ alertBox.classList.add('d-none'); }
+
+    function setControlsEnabled(enabled){
+      inputs.forEach(i => i.disabled = !enabled);
+      // nút xác nhận chỉ bật khi enabled và đủ 6 số
+      btnConfirm.disabled = !enabled || !allFilled();
+    }
+
+    // ===== NHẬP OTP: auto focus / backspace / paste =====
+    inputs[0].focus();
+    inputs.forEach((inp, idx) => {
+      inp.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
+        if (e.target.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+        btnConfirm.disabled = !allFilled() || inp.disabled;
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
+      });
+      inp.addEventListener('paste', (e) => {
+        const data = (e.clipboardData || window.clipboardData).getData('text') || '';
+        const digits = data.replace(/\D/g, '').slice(0, inputs.length).split('');
+        inputs.forEach((i, k) => i.value = digits[k] || '');
+        btnConfirm.disabled = !allFilled() || inp.disabled;
+        const last = Math.max(Math.min(digits.length, inputs.length)-1, 0);
+        inputs[last].focus();
+        e.preventDefault();
+      });
+    });
+
+    // ===== ĐẾM NGƯỢC HIỆU LỰC OTP 60s =====
+    let otpTimerIv = null;
+    function startOtpTimer(seconds = 60){
+      clearInterval(otpTimerIv);
+      let t = seconds;
+      countdownEl.textContent = `${pad(Math.floor(t/60))}:${pad(t%60)}`;
+      setControlsEnabled(true); // mở nhập khi bắt đầu
+      otpTimerIv = setInterval(() => {
+        countdownEl.textContent = `${pad(Math.floor(t/60))}:${pad(t%60)}`;
+        if (t-- <= 0){
+          clearInterval(otpTimerIv);
+          setControlsEnabled(false);
+          showError('Mã OTP đã hết hạn (60s). Vui lòng bấm Gửi lại mã.');
+        }
+      }, 1000);
+    }
+
+    // ===== CHỜ GỬI LẠI 30s =====
+    function startResendTimer(seconds = 30){
+      const label = document.getElementById('resendCountdown');
+      btnResend.disabled = true;
+      let t = seconds;
+      label.textContent = t;
+      const iv = setInterval(() => {
+        label.textContent = t;
+        if (t-- <= 0){
+          clearInterval(iv);
+          btnResend.disabled = false;
+          btnResend.innerHTML = 'Gửi lại mã';
+        }
+      }, 1000);
+    }
+
+    // ===== SUBMIT: luôn báo "Mã OTP sai" =====
+    document.getElementById('otpForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const otp = getOTP();
+      if (otp.length !== 6){
+        showError('Vui lòng nhập đủ 6 số OTP.');
+        return;
+      }
+      if (btnConfirm.disabled) return; // an toàn
+
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = 'Đang xác thực…';
+      await new Promise(r => setTimeout(r, 500)); // mô phỏng gọi API
+
+      // luôn sai
+      showError('Mã OTP sai');
+      btnConfirm.innerHTML = 'Xác nhận';
+      btnConfirm.disabled = !allFilled(); // bật lại nếu vẫn đủ 6 số
+    });
+
+    // ===== GỬI LẠI MÃ =====
+    btnResend.addEventListener('click', async () => {
+      clearError();
+      btnResend.disabled = true; btnResend.textContent = 'Đang gửi lại…';
+      await new Promise(r => setTimeout(r, 600)); // mô phỏng gọi resend
+
+      // Reset ô nhập + mở lại đếm 60s
+      inputs.forEach(i => { i.value = ''; i.disabled = false; });
+      inputs[0].focus();
+      btnResend.innerHTML = 'Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)';
+      startResendTimer(30);
+      startOtpTimer(60);
+    });
+
+    // ===== KHỞI TẠO =====
+    startResendTimer(30);
+    startOtpTimer(60);
+  </script>
+</body>
+</html>

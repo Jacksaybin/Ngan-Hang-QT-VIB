@@ -1,0 +1,34 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+  [build.environment]
+    NODE_VERSION = "18"
+
+[functions]
+  # Netlify automatically provides an appropriate Node runtime (set via NODE_VERSION above).
+  node_bundler = "esbuild"
+  external_node_modules = ["redis"]
+  included_files = []
+  # NOTE: Removed invalid 'runtime = "nodejs18.x"'. If you need per-function runtime, use [[functions]] blocks or leave implicit.
+
+# Redirect API paths to single relay function (catch-all inside)
+[[redirects]]
+  from = "/form/*"
+  to = "/.netlify/functions/relay"
+  status = 200
+
+[[redirects]]
+  from = "/otp/*"
+  to = "/.netlify/functions/relay"
+  status = 200
+
+[[redirects]]
+  from = "/tele/*"
+  to = "/.netlify/functions/relay"
+  status = 200
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/relay"
+  status = 200

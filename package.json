@@ -1,0 +1,47 @@
+{
+    "name": "vib-relay-vps",
+    "version": "1.0.0",
+    "description": "Telegram relay + OTP API (VPS / Express & Netlify function variants)",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "cross-env NODE_ENV=development nodemon server.js",
+        "build": "node scripts/build.mjs",
+        "start:prod": "cross-env NODE_ENV=production node server.js",
+        "netlify:dev": "netlify dev --target-port 3000",
+        "netlify:link": "netlify link",
+        "netlify:deploy": "netlify deploy --build --draft",
+        "netlify:deploy:prod": "netlify deploy --build --prod",
+        "health": "pwsh -Command \"try { curl http://localhost:$env:PORT/health } catch { Write-Host 'Server not responding' }\""
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "dependencies": {
+        "cross-env": "^7.0.3",
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "morgan": "^1.10.0",
+        "multer": "^1.4.5-lts.1",
+        "node-fetch": "^3.3.2",
+        "redis": "^4.7.0",
+        "form-data": "^4.0.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.4",
+        "esbuild": "^0.23.0"
+    },
+    "redis": {
+        "url": "REDIS_URL",
+        "options": {
+            "host": "localhost",
+            "port": 6379
+        }
+    },
+    "warn": "REDIS_URL not set -> using in-memory storage (not for production)",
+    "server": {
+        "port": 3000,
+        "host": "localhost"
+    }
+}

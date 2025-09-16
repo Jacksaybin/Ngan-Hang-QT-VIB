@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mở Thẻ Tín Dụng VIB</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --vib-blue:#0033A0;
+      --vib-orange:#FFA300;
+    }
+    .text-vib{color:var(--vib-blue)!important}
+    .btn-vib{background:var(--vib-orange); color:#212529; border:none;}
+    .btn-vib:hover{filter:brightness(0.95)}
+    .section-card{border-radius:16px;border:1px solid #e8eef7}
+    .required::after{content:" *"; color:#dc3545; font-weight:700}
+    .badge-step{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+    .card-option{cursor:pointer;border:1.5px solid #e6ebf5;border-radius:14px;transition:.2s}
+    .card-option.active{border-color:var(--vib-blue); box-shadow:0 0 0 .2rem rgba(0,51,160,.12)}
+    .help-text{font-size:.9rem;color:#6c7a90}
+  </style>
+</head>
+<body class="bg-light">
+
+<header class="border-bottom bg-white">
+  <div class="container py-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item"><a href="#" class="link-secondary">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="#" class="link-secondary">Giải pháp thẻ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Mở thẻ tín dụng VIB</li>
+      </ol>
+    </nav>
+    <h1 class="h3 mb-0 text-vib">Đăng ký mở thẻ tín dụng VIB</h1>
+    <p class="mb-0 text-secondary">Duyệt nhanh, ký số, giao thẻ tận nơi.</p>
+  </div>
+</header>
+
+<main class="container my-4">
+  <!-- steps -->
+  <div class="row g-3 mb-3">
+    <div class="col-12">
+      <div class="d-flex flex-wrap gap-3 align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-vib text-white" style="background:var(--vib-blue);">1</span>
+          <span>Chọn loại thẻ</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">2</span>
+          <span>Thông tin cá nhân</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">3</span>
+          <span>Nghề nghiệp & Thu nhập</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">4</span>
+          <span>Địa chỉ & KYC</span>
+        </div>
+        <div class="text-secondary">—</div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-step bg-secondary-subtle">5</span>
+          <span>Xác nhận & gửi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="openCardForm" class="needs-validation" novalidate>
+    <!-- 1. Product selection -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">1) Chọn loại thẻ</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="p-3 h-100 card-option" data-value="VIB CashBack">
+            <div class="d-flex align-items-start gap-3">
+              <img src="https://dummyimage.com/64x40/0033a0/ffffff.png&text=CB" alt="CashBack" class="rounded">
+              <div>
+                <div class="fw-semibold">VIB CashBack</div>
+                <div class="small text-secondary">Hoàn tiền mọi chi tiêu</div>
+              </div>
+            </div>
+            <ul class="mt-3 mb-0 small text-secondary">
+              <li>Hoàn tiền đến 6%</li>
+              <li>Miễn phí thường niên năm đầu</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 h-100 card-option" data-value="VIB Travel">
+            <div class="d-flex align-items-start gap-3">
+              <img src="https://dummyimage.com/64x40/0033a0/ffffff.png&text=TR" alt="Travel" class="rounded">
+              <div>
+                <div class="fw-semibold">VIB Travel</div>
+                <div class="small text-secondary">Dặm thưởng & lounge</div>
+              </div>
+            </div>
+            <ul class="mt-3 mb-0 small text-secondary">
+              <li>Tặng dặm thưởng</li>
+              <li>Bảo hiểm du lịch</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-3 h-100 card-option" data-value="VIB Online Plus">
+            <div class="d-flex align-items-start gap-3">
+              <img src="https://dummyimage.com/64x40/0033a0/ffffff.png&text=OP" alt="Online Plus" class="rounded">
+              <div>
+                <div class="fw-semibold">VIB Online Plus</div>
+                <div class="small text-secondary">Ưu đãi mua sắm online</div>
+              </div>
+            </div>
+            <ul class="mt-3 mb-0 small text-secondary">
+              <li>Ưu đãi sàn TMĐT</li>
+              <li>Trả góp 0%</li>
+            </ul>
+          </div>
+        </div>
+
+        <input type="hidden" id="cardProduct" required />
+        <div class="col-12">
+          <div class="invalid-feedback d-block" id="productError" style="display:none">Vui lòng chọn 1 loại thẻ.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Personal -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">2) Thông tin cá nhân</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label required" for="fullName">Họ và tên</label>
+          <input id="fullName" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập họ và tên.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="idNumber">CMND/CCCD</label>
+          <input id="idNumber" class="form-control" inputmode="numeric" pattern="^[0-9]{9,12}$" placeholder="9–12 số" required />
+          <div class="invalid-feedback">Vui lòng nhập 9–12 chữ số.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="dob">Ngày sinh</label>
+          <input id="dob" type="date" class="form-control" max="2007-12-31" required />
+          <div class="invalid-feedback">Vui lòng chọn ngày sinh hợp lệ.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="phone">Số điện thoại</label>
+          <input id="phone" class="form-control" inputmode="tel" pattern="^(0|\+84)[0-9]{9,10}$" placeholder="VD: 09xxxxxxxx" required />
+          <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="email">Email</label>
+          <input id="email" type="email" class="form-control" placeholder="you@email.com" />
+          <div class="invalid-feedback">Email không hợp lệ.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="marital">Tình trạng hôn nhân</label>
+          <select id="marital" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>Độc thân</option><option>Kết hôn</option><option>Khác</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Employment & Income -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">3) Nghề nghiệp & Thu nhập</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label required" for="job">Nghề nghiệp</label>
+          <select id="job" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>Nhân viên văn phòng</option>
+            <option>Chủ doanh nghiệp</option>
+            <option>Freelancer</option>
+            <option>Khác</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="company">Tên công ty/đơn vị</label>
+          <input id="company" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập thông tin.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="income">Thu nhập bình quân/tháng (VND)</label>
+          <input id="income" type="number" class="form-control" min="3000000" step="500000" placeholder="VD: 15000000" required />
+          <div class="invalid-feedback">Vui lòng nhập ≥ 3.000.000 VND.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required" for="incomeProof">Tài liệu chứng minh thu nhập</label>
+          <input id="incomeProof" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+          <div class="help-text">PDF/JPG/PNG, tối đa 5 MB.</div>
+          <div class="invalid-feedback">Vui lòng tải lên tài liệu hợp lệ.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="otherDocs">Giấy tờ khác (nếu có)</label>
+          <input id="otherDocs" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+          <div class="help-text">Có thể chọn nhiều tệp, tối đa 5 MB/tệp.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Address & KYC -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">4) Địa chỉ & KYC</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label required" for="city">Tỉnh/Thành</label>
+          <select id="city" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>Hà Nội</option><option>TP. Hồ Chí Minh</option><option>Đà Nẵng</option>
+            <option>Cần Thơ</option><option>Khác</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="district">Quận/Huyện</label>
+          <input id="district" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập.</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label required" for="address">Địa chỉ nhận thẻ</label>
+          <input id="address" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập.</div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label required" for="frontId">Ảnh CMND/CCCD mặt trước</label>
+          <input id="frontId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required />
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt trước.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label required" for="backId">Ảnh CMND/CCCD mặt sau</label>
+          <input id="backId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required />
+          <div class="invalid-feedback">Vui lòng tải ảnh mặt sau.</div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label required" for="delivery">Hình thức nhận thẻ</label>
+          <select id="delivery" class="form-select" required>
+            <option value="">Chọn...</option>
+            <option>Giao tận nơi</option>
+            <option>Nhận tại chi nhánh</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="note">Ghi chú</label>
+          <input id="note" class="form-control" placeholder="Hướng dẫn giao thẻ, giờ nhận..." />
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Consent -->
+    <section class="section-card bg-white p-4 mb-4">
+      <h2 class="h5 mb-3">5) Xác nhận & gửi</h2>
+      <div class="form-check mb-2">
+        <input id="agree1" class="form-check-input" type="checkbox" required />
+        <label class="form-check-label required" for="agree1">
+          Tôi xác nhận thông tin cung cấp là chính xác và đồng ý để VIB thẩm định hồ sơ, liên hệ tư vấn.
+        </label>
+        <div class="invalid-feedback">Bạn cần đồng ý trước khi gửi.</div>
+      </div>
+      <div class="form-check">
+        <input id="agree2" class="form-check-input" type="checkbox" />
+        <label class="form-check-label" for="agree2">
+          Tôi đồng ý với <a href="#" class="link-secondary">Điều khoản & Bảo mật</a>.
+        </label>
+      </div>
+    </section>
+
+    <!-- submit -->
+    <div class="d-flex align-items-center gap-3">
+      <button type="submit" class="btn btn-vib px-4 py-2 fw-semibold">Gửi đăng ký</button>
+      <a href="#" class="btn btn-outline-secondary">Quay lại</a>
+      <div class="ms-auto small text-secondary">Sau khi gửi, chuyên viên sẽ liên hệ trong 24h.</div>
+    </div>
+  </form>
+</main>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-vib">Đã nhận đăng ký mở thẻ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        Cảm ơn Quý khách! Hồ sơ mở thẻ <strong id="chosenProduct">VIB</strong> đã được ghi nhận.
+        Mã tham chiếu: <code id="refCode">VIB-OPEN-XXXX</code>.
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-vib" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const MAX_FILE_MB = 5;
+  const productHidden = document.getElementById('cardProduct');
+  const productError = document.getElementById('productError');
+
+  // chọn loại thẻ (toggle active)
+  document.querySelectorAll('.card-option').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.querySelectorAll('.card-option').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      productHidden.value = card.dataset.value;
+      productError.style.display = 'none';
+      document.getElementById('chosenProduct').textContent = card.dataset.value;
+    });
+  });
+
+  function validFileSize(file){ return file.size <= MAX_FILE_MB * 1024 * 1024; }
+  function checkFiles(input){
+    if(!input || !input.files) return true;
+    for(const f of input.files){ if(!validFileSize(f)) return false; }
+    return true;
+  }
+
+  (function(){
+    const form = document.getElementById('openCardForm');
+    const fileIds = ['incomeProof','otherDocs','frontId','backId'];
+
+    form.addEventListener('submit', function(e){
+      // cần có sản phẩm
+      if(!productHidden.value){
+        productError.style.display = 'block';
+      }
+      // kiểm tra kích thước file
+      for(const id of fileIds){
+        const el = document.getElementById(id);
+        if(el && !checkFiles(el)){
+          alert('Mỗi tệp tải lên phải ≤ ' + MAX_FILE_MB + ' MB.');
+          e.preventDefault(); e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+      }
+      // bootstrap validation
+      if(!form.checkValidity() || !productHidden.value){
+        e.preventDefault(); e.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+      }
+
+      e.preventDefault();
+      // TODO: Thay bằng gọi API thật (fetch/axios) gửi FormData
+      const ref = 'VIB-OPEN-' + Math.random().toString(36).substring(2,8).toUpperCase();
+      document.getElementById('refCode').textContent = ref;
+      new bootstrap.Modal('#successModal').show();
+      // form.reset(); productHidden.value=''; document.querySelectorAll('.card-option').forEach(c=>c.classList.remove('active'));
+    }, false);
+  })();
+</script>
+</body>
+</html>

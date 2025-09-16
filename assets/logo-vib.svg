@@ -1,0 +1,10 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 36' width='140' height='36' role='img' aria-label='VIB Logo'>
+  <defs>
+    <linearGradient id='g1' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#0054a6'/>
+      <stop offset='100%' stop-color='#0095d9'/>
+    </linearGradient>
+  </defs>
+  <text x='0' y='26' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='700' fill='url(#g1)'>VIB</text>
+  <path d='M108 5l4 6 7-2-4 6 4 6-7-2-4 6v-7l-7-2 7-2V5z' fill='#ff8c05'/>
+</svg>
