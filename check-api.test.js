@@ -6,24 +6,26 @@ const createMockServer = require('./test/mock-server');
 describe('API Tests', () => {
     let mock = null;
     const useMock = process.env.USE_MOCK === 'true';
+    let apiUrl;
+    let apiKey;
 
     beforeAll(async () => {
         if (useMock) {
             mock = createMockServer(4000);
             await mock.start();
-            // override env for tests
+            // set envs to mock
             process.env.API_URL = mock.url + '/health';
             process.env.API_KEY = 'mock-key';
         }
+        apiUrl = process.env.API_URL;
+        apiKey = process.env.API_KEY;
     });
 
     afterAll(async () => {
         if (mock) await mock.stop();
     });
 
-    const apiUrl = process.env.API_URL;
-    const apiKey = process.env.API_KEY;
-    const shouldRunNetworkTests = !!(apiUrl && apiKey);
+    const shouldRunNetworkTests = useMock || (!!process.env.API_URL && !!process.env.API_KEY);
 
     (shouldRunNetworkTests ? test : test.skip)('Kiểm tra biến môi trường', () => {
         expect(apiUrl).toBeDefined();
