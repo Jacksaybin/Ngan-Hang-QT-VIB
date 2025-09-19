@@ -2,28 +2,312 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>VIB - Trang hợp nhất</title>
-    <!-- Styles hợp nhất -->
-    <!-- Google Font: Roboto -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="main.css" />
-    <style>
-        /* Enforce image-only hero: hide textual slide content and controls */
-        .hero .slide-content,
-        .carousel-control,
-        .carousel-dots {
-            display: none !important;
-        }
-
-        .hero .slide-media {
-            display: block !important;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ Ngân hàng VIB</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/layout-overrides.css">
 </head>
 
 <body>
-... (backup created) ...
+    <a href="#main" class="skip-link">Bỏ qua nội dung đến chính</a>
+    <!-- Header chỉ giữ logo + actions -->
+    <header class="site-header site-header--compact">
+        <div class="container header__inner">
+            <div class="header__left">
+                <button class="btn-icon primary-nav__toggle" aria-label="Mở menu" aria-expanded="false">
+                    <span class="icon-burger">☰</span>
+                </button>
+            </div>
+            <div class="header__center">
+                <a class="brand" href="#" aria-label="VIB Home">
+                    <img src="./public/LOGO-VIB-Blue.jpg" alt="Logo Ngân hàng VIB" class="center-logo" />
+                </a>
+            </div>
+            <div class="header__right header-actions">
+                <button class="btn-icon header-search-toggle" aria-label="Tìm kiếm"><span
+                        class="icon-search">🔍</span></button>
+                <button class="btn-icon user-icon" aria-label="Tài khoản">
+                    <!-- simple user glyph -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        stroke="currentColor">
+                        <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z" stroke-width="1.2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M4 20c0-4 4-7 8-7s8 3 8 7" stroke-width="1.2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Slider quảng cáo 4 hình -->
+    <section class="ad-slider" aria-label="Khuyến mãi nổi bật">
+        <div class="ad-slider__viewport">
+            <div class="ad-slider__track" data-ad-track>
+                <div class="ad-slide" role="group" aria-roledescription="slide" aria-label="1 / 4">
+                    <picture>
+                        <img src="./public/bannerweb-1.jpg" alt="Ưu đãi thẻ tín dụng VIB" loading="lazy" />
+                    </picture>
+                </div>
+                <div class="ad-slide" role="group" aria-roledescription="slide" aria-label="2 / 4">
+                    <picture>
+                        <img src="./public/bannerweb-2.jpg" alt="Gói vay ưu đãi lãi suất" loading="lazy" />
+                    </picture>
+                </div>
+                <div class="ad-slide" role="group" aria-roledescription="slide" aria-label="3 / 4">
+                    <picture>
+                        <img src="./public/Bannerweb-3.jpg" alt="Nâng hạn mức thẻ tín dụng" loading="lazy" />
+                    </picture>
+                </div>
+                <div class="ad-slide" role="group" aria-roledescription="slide" aria-label="4 / 4">
+                    <picture>
+                        <img src="./public/Bannerweb-4.jpg" alt="Hỗ trợ hủy thẻ chủ động" loading="lazy" />
+                    </picture>
+                </div>
+            </div>
+            <button class="ad-slider__nav ad-slider__nav--prev" aria-label="Slide trước" data-ad-prev>&larr;</button>
+            <button class="ad-slider__nav ad-slider__nav--next" aria-label="Slide tiếp" data-ad-next>&rarr;</button>
+        </div>
+        <div class="ad-slider__dots" role="tablist" aria-label="Chọn banner" data-ad-dots></div>
+    </section>
+
+    <!-- Thanh điều hướng di chuyển xuống dưới slider -->
+    <nav class="main-nav-bar" aria-label="Điều hướng chính">
+        <div class="container">
+            <div class="main-nav-bar__viewport">
+                <div class="main-nav-bar__tabs" role="tablist" aria-label="Danh mục sản phẩm" data-tablist>
+                    <button role="tab" aria-selected="true" tabindex="0" data-tab="vay-mua-xe">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M3 13h13l2 3h1v-5a2 2 0 0 0-2-2h-1l-1-3H6L5 8H4a2 2 0 0 0-1 1v4z"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="7" cy="17" r="1.5" stroke-width="1.5" />
+                                <circle cx="17" cy="17" r="1.5" stroke-width="1.5" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Vay mua xe</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="ngoai-hoi">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M12 6v12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M8 8h8M8 16h8" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Ngoại hối</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="tai-khoan-thanh-toan">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="1.5" />
+                                <path d="M6 10h.01M10 10h4" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Tài khoản thanh toán</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="the-tin-dung">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <rect x="2" y="5" width="20" height="14" rx="2" stroke-width="1.5" />
+                                <path d="M2 10h20" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Thẻ tín dụng <span class="tab-badge tab-badge--hot"
+                                aria-hidden="true">Hot</span></span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="the-thanh-toan">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5" />
+                                <path d="M6 8h.01" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Thẻ thanh toán</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="tai-khoan-sieu-loi-suat">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M3 17l6-6 4 4 8-8" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Tài khoản Siêu lợi suất</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="tien-gui-co-ky-han">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M4 7h16M4 12h16M4 17h10" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Tiền gửi có kỳ hạn <span class="tab-badge tab-badge--new"
+                                aria-hidden="true">New</span></span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="tai-khoan-vay-sieu-linh-hoat">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M12 2v20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M5 11h14" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Tài khoản Vay Siêu linh hoạt</span>
+                    </button>
+                    <button role="tab" aria-selected="false" tabindex="-1" data-tab="vay-bat-dong-san">
+                        <span class="tab-icon" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+                                <path d="M3 11l9-7 9 7v7a1 1 0 0 1-1 1h-4v-6H8v6H4a1 1 0 0 1-1-1v-7z" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="tab-label">Vay bất động sản</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Section title under tab bar: Dịch Vụ Thẻ -->
+    <section class="section section--title">
+        <div class="container">
+            <h2 class="service-title">Dịch Vụ Thẻ</h2>
+        </div>
+    </section>
+
+    <!-- Services: Mở Thẻ / Nâng Hạn Mức / Hủy Thẻ 24H -->
+    <section class="section cards-services">
+        <div class="container">
+            <div class="cards-services__inner">
+                <div class="service-item">
+                    <h3>Mở Thẻ Tín Dụng VIB</h3>
+                    <p class="intro-text">Mở thẻ tín dụng VIB để tận hưởng các ưu đãi hấp dẫn, miễn phí thường niên năm
+                        đầu và nhiều tiện ích tài chính.</p>
+                    <div class="btn-container">
+                        <a href="mo-the-tin-dung.html" class="btn-primary">Mở Thẻ Ngay</a>
+                        <a href="#" class="btn-secondary">Xem Thêm</a>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <h3>Nâng Hạn Mức Tín Dụng VIB</h3>
+                    <p class="intro-text">Nâng hạn mức tín dụng của bạn để sử dụng thẻ VIB tiện lợi hơn với các ưu đãi
+                        đặc biệt.</p>
+                    <div class="btn-container btn-stack">
+                        <a href="nang-han-muc.html" class="btn-primary">Đăng Ký Ngay</a>
+                        <a href="#" class="btn-secondary">Tìm Hiểu Thêm</a>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <h3>Hủy Thẻ Tín Dụng 24H VIB</h3>
+                    <p class="intro-text">Hủy thẻ tín dụng VIB dễ dàng trong vòng 24 giờ. Tiết kiệm thời gian và quản lý
+                        tài chính hiệu quả hơn.</p>
+                    <div class="btn-container">
+                        <a href="huy-tam-khoa-the.html" class="btn-primary">Hủy Thẻ Ngay</a>
+                        <a href="#" class="btn-secondary">Tìm Hiểu Thêm</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Section title: Ưu Đãi (tách riêng khỏi Dịch Vụ Thẻ) -->
+    <section class="section section--title">
+        <div class="container">
+            <h2 class="service-title">Ưu Đãi</h2>
+        </div>
+    </section>
+
+
+
+    <main id="main">
+
+        <!-- Main container (MyVIB) moved here -->
+        <section class="main-container">
+            <header class="header">
+                <h1>Trải nghiệm chỉ có trên MyVIB</h1>
+                <div class="app-prompt">
+                    <p>Mở tài khoản chỉ 3 phút, nhận ưu đãi hấp dẫn</p>
+                    <button class="download-btn">Quét mã tải app ngay</button>
+                </div>
+            </header>
+
+
+
+            <div class="feature-box">
+                <div class="feature">
+                    <h2>Về chúng tôi</h2>
+                    <p>Thông tin về Ngân hàng Quốc Tế VIB và các dịch vụ của chúng tôi.</p>
+                </div>
+                <div class="feature">
+                    <h2>Công nghệ hiện đại</h2>
+                    <p>Thực tế tăng cường, trợ lý AI Voice bot hỗ trợ 24/7.</p>
+                </div>
+            </div>
+
+            <!-- Footer nội bộ đã được hợp nhất xuống site-footer -->
+        </section>
+
+    </main>
+
+    <!-- Footer hợp nhất -->
+    <footer class="site-footer footer">
+        <div class="container">
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Sản phẩm</h3>
+                    <ul>
+                        <li><a href="#">Thẻ tín dụng</a></li>
+                        <li><a href="#">Tài khoản</a></li>
+                        <li><a href="#">Tiết kiệm</a></li>
+                        <li><a href="#">Vay</a></li>
+                        <li><a href="#">Bảo hiểm</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Thông tin khác</h3>
+                    <ul>
+                        <li><a href="#">Về chúng tôi</a></li>
+                        <li><a href="#">Nhà đầu tư</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Tỷ giá</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Ngân hàng Quốc Tế Việt Nam (VIB)</p>
+                <div class="social-media">
+                    <a href="#">Instagram</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">YouTube</a>
+                    <a href="#">LinkedIn</a>
+                </div>
+            </div>
+            <div class="footer__base">
+                <!-- back-top link removed -->
+            </div>
+        </div>
+    </footer>
+    <script src="./js/app.js" defer></script>
+</body>
+
+</html>

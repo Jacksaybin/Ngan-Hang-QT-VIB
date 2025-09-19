@@ -1,0 +1,857 @@
+/* Layout overrides for new VIB-like homepage */
+
+/* Basic container spacing adjustments */
+.container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* (Removed obsolete .uudai-card and .uudai-info styles — section no longer exists) */
+
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    padding: .45rem .6rem;
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+
+.icon-burger {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+/* Ensure centered logo doesn't push layout on small screens */
+@media (max-width: 720px) {
+    .header__center {
+        justify-content: center;
+    }
+
+    .header__left,
+    .header__right {
+        width: 48px;
+    }
+
+    .center-logo {
+        max-height: 36px;
+    }
+}
+
+.primary-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+}
+
+.primary-nav__list a {
+    font-weight: 500;
+    color: #123;
+}
+
+.primary-nav__list a:hover {
+    color: #0d63f3;
+    text-decoration: none;
+}
+
+/* Hero styles removed (section deleted) */
+
+.promo-grid {
+    --gap: 1.5rem;
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.promo-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 200px;
+    color: #fff;
+    display: block;
+}
+
+.promo-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .2), rgba(0, 0, 0, .55));
+}
+
+.promo-card__overlay {
+    position: relative;
+}
+
+.promo-card h3 {
+    font-size: 1.05rem;
+}
+
+/* .cards-grid rules removed — markup no longer contains .cards-grid */
+
+.btn--sm {
+    padding: .45rem .85rem;
+    font-size: .8rem;
+    line-height: 1;
+}
+
+/* .back-top rules removed (link deleted) */
+
+/* Ad Slider */
+.ad-slider {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.ad-slider__viewport {
+    position: relative;
+}
+
+.ad-slider__track {
+    display: flex;
+    transition: transform .7s cubic-bezier(.6, .05, .3, .9);
+    will-change: transform;
+}
+
+.ad-slide {
+    position: relative;
+    flex: 0 0 100%;
+    max-height: 420px;
+    display: grid;
+    place-items: center;
+}
+
+.ad-slide picture,
+.ad-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* caption overlays removed from slides */
+
+.ad-slider__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, .45);
+    color: #fff;
+    border: none;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.ad-slider__nav:hover {
+    background: rgba(0, 0, 0, .65);
+}
+
+.ad-slider__nav:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.ad-slider__nav--prev {
+    left: 14px;
+}
+
+.ad-slider__nav--next {
+    right: 14px;
+}
+
+.ad-slider__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: .5rem;
+    z-index: 5;
+}
+
+.ad-slider__dots button {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, .45);
+    cursor: pointer;
+    padding: 0;
+    transition: .3s;
+}
+
+.ad-slider__dots button[aria-selected='true'] {
+    background: #fff;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .3);
+}
+
+.ad-slider__dots button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Pause indicator (optional) */
+.ad-slider[data-paused="true"] .ad-slide__caption {
+    outline: 2px dashed rgba(255, 255, 255, .5);
+}
+
+/* Main navigation bar moved below slider */
+.main-nav-bar {
+    /* keep the bar full-bleed but move the visible border/background into the centered container
+       so the content below the full-width banner lines up with the page gutters */
+    background: transparent;
+    position: relative;
+    z-index: 20;
+}
+
+/* Constrain the visible nav background/borders to the page container so edges align */
+.main-nav-bar>.container {
+    background: #ffffff;
+    border-top: 1px solid #e4e8ef;
+    border-bottom: 1px solid #e4e8ef;
+    box-shadow: 0 2px 4px -2px rgba(0, 0, 0, .06);
+    border-radius: 0;
+}
+
+/* Tab-style main nav */
+.main-nav-bar__tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: .4rem 0;
+}
+
+.main-nav-bar__viewport {
+    overflow: hidden;
+    position: relative;
+}
+
+/* limit visible tabs to 4 items: each tab flex-basis is 25% of viewport */
+.main-nav-bar__tabs [role="tab"] {
+    flex: 0 0 25%;
+}
+
+.main-nav-bar__tabs [role="tab"] {
+    background: transparent;
+    border: none;
+    padding: .85rem 1.25rem;
+    margin: 0;
+    min-width: 120px;
+    text-align: center;
+    font-weight: 600;
+    color: #1f2d3d;
+    cursor: pointer;
+    transition: color .15s, background .15s;
+}
+
+.main-nav-bar__tabs [role="tab"] .tab-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: .35rem;
+    line-height: 1;
+}
+
+.main-nav-bar__tabs [role="tab"] .tab-icon svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Hover and interaction effects for tabs */
+.main-nav-bar__tabs [role="tab"] {
+    position: relative;
+    transition: color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.main-nav-bar__tabs [role="tab"]:hover,
+.main-nav-bar__tabs [role="tab"][aria-selected="true"] {
+    color: var(--color-primary, #0d63f3);
+    background: rgba(13, 99, 243, 0.04);
+    transform: translateY(-3px);
+}
+
+.main-nav-bar__tabs [role="tab"] .tab-icon svg {
+    transition: transform .18s ease, color .18s ease;
+}
+
+.main-nav-bar__tabs [role="tab"]:hover .tab-icon svg {
+    transform: scale(1.09);
+    color: var(--color-primary, #0d63f3);
+}
+
+/* Smooth auto-scroll snap behavior for keyboard/scroll */
+.main-nav-bar__viewport {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Tab badges (New / Hot) */
+.tab-badge {
+    display: inline-block;
+    font-size: .65rem;
+    padding: .15rem .4rem;
+    border-radius: 999px;
+    margin-left: .5rem;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.tab-badge--hot {
+    background: #ff5a3c;
+    color: #fff;
+}
+
+.tab-badge--new {
+    background: #ff9a00;
+    color: #fff;
+}
+
+/* subtle focus ring for keyboard users */
+.main-nav-bar__tabs [role="tab"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(13, 99, 243, 0.12);
+    border-radius: 8px;
+}
+
+/* Ensure the indicator updates smoothly when tab width changes */
+.main-nav-bar__tabs::after {
+    transition: left .22s cubic-bezier(.2, .8, .2, 1), width .22s cubic-bezier(.2, .8, .2, 1);
+}
+
+.main-nav-bar__tabs [role="tab"] .tab-label {
+    display: block;
+    font-size: .95rem;
+    line-height: 1.1;
+}
+
+.main-nav-bar__tabs [role="tab"]:hover {
+    color: #0d63f3;
+}
+
+.main-nav-bar__tabs [role="tab"][aria-selected="true"] {
+    color: #0d63f3;
+}
+
+/* active underline indicator */
+.main-nav-bar__tabs {
+    position: relative;
+}
+
+.main-nav-bar__tabs::after {
+    content: "";
+    position: absolute;
+    height: 3px;
+    background: #0d63f3;
+    bottom: 0;
+    left: 0;
+    width: var(--indicator-width, 0%);
+    left: var(--indicator-left, 0);
+    transition: left .25s cubic-bezier(.2, .8, .2, 1), width .25s cubic-bezier(.2, .8, .2, 1);
+}
+
+/* when JS has measured and toggled class, ensure indicator shows */
+.main-nav-bar__tabs.with-indicator::after {
+    opacity: 1;
+}
+
+/* Focus styles */
+.main-nav-bar__tabs [role="tab"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 99, 243, .18);
+    border-radius: 6px;
+}
+
+/* Compact header (logo only) */
+.site-header--compact {
+    border-bottom: 1px solid #e4e8ef;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+.site-header--compact .header__inner {
+    min-height: 68px;
+}
+
+/* Header layout: ensure left hamburger, centered logo, right actions */
+.site-header--compact .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.site-header--compact .header__left {
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+}
+
+.site-header--compact .header__center {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.site-header--compact .header__right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+/* Keep logo centered visually even if right side grows; constrain logo size */
+.site-header--compact .center-logo {
+    max-height: 44px;
+    width: auto;
+    display: block;
+}
+
+/* Ensure header actions don't wrap on small screens */
+.site-header--compact .header-actions {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+}
+
+@media (max-width: 560px) {
+    .site-header--compact .header__center {
+        padding: 0 8px;
+    }
+
+    .site-header--compact .header__right {
+        gap: .25rem;
+    }
+
+    .site-header--compact .btn--secondary {
+        display: none;
+        /* hide text login on very small screens to keep layout */
+    }
+}
+
+/* Title below tab bar */
+/* Title under tab bar removed in markup */
+
+/* Ưu đãi nổi bật section (updated: card layout with cover images) */
+/* Uu dai section removed from markup */
+
+/* User provided styles for main-container and footer */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    background-color: white;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+    background: #004b89;
+    color: white;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin: 0;
+    line-height: 1.05;
+}
+
+.app-prompt {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    justify-content: center;
+}
+
+.download-btn {
+    align-self: flex-end;
+    background-color: #00aaff;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .75rem;
+        padding: 18px;
+    }
+
+    .app-prompt {
+        width: 100%;
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .download-btn {
+        align-self: flex-start;
+    }
+}
+
+.app-prompt {
+    text-align: right;
+}
+
+.app-prompt p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.download-btn {
+    background-color: #00aaff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.feature-box {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #e9f4f7;
+}
+
+/* Title shown under the tab bar for a section like "Dịch Vụ Thẻ" */
+.section--title {
+    padding: 0.75rem 0 0.25rem;
+    background: transparent;
+}
+
+.section--title .service-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-text, #1f2d3d);
+}
+
+@media (max-width: 520px) {
+    .section--title .service-title {
+        font-size: 1.05rem;
+        padding: 0 0.5rem;
+    }
+}
+
+/* Scoped styles for the 'Dịch Vụ Thẻ' services block inserted from user snippet */
+.cards-services {
+    padding: 18px 0 32px;
+    background: transparent;
+}
+
+.cards-services__inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: stretch;
+    /* ensure cards equal height */
+    margin-bottom: 20px;
+}
+
+.cards-services .service-item {
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    border: 1px solid rgba(31, 45, 61, 0.04);
+    /* subtle consistent border */
+}
+
+.cards-services .service-item h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    color: var(--color-text, #1f2d3d);
+}
+
+.cards-services .intro-text {
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.cards-services .btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: auto;
+    /* push buttons to bottom for equal-height cards */
+    flex-wrap: wrap;
+}
+
+/* Make stacked class behave horizontally on desktop, but stack on small screens */
+.cards-services .btn-stack {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+/* removed inline offer title under middle card; Ưu Đãi is a standalone section now */
+
+.cards-services .btn-primary,
+.cards-services .btn-secondary {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 22px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.cards-services .btn-primary {
+    background: #ffcc00;
+    color: #000;
+}
+
+.cards-services .btn-secondary {
+    background: transparent;
+    color: var(--color-text, #1f2d3d);
+    border: 1px solid rgba(31, 45, 61, 0.08);
+}
+
+@media (max-width: 980px) {
+    .cards-services__inner {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 620px) {
+    .cards-services__inner {
+        grid-template-columns: 1fr;
+    }
+
+    /* On small screens, stack the buttons vertically */
+    .cards-services .btn-stack {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* (Programs highlight section removed to revert UI) */
+
+/* Removed CTA-related styles: These selectors were used by the temporary
+   "Dịch Vụ Thẻ" CTA block which has been deleted from the markup. */
+/* .tab-title__wrap { ... } */
+/* .tab-actions { ... } */
+/* .btn-cta { ... } */
+/* .card-cta { ... } */
+
+.feature {
+    background-color: white;
+    padding: 15px;
+    width: 48%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.feature h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.feature p {
+    font-size: 14px;
+}
+
+.footer {
+    background-color: #ffffff;
+    /* switch to white footer */
+    color: #1f2d3d;
+    /* dark text for readability */
+    padding: 30px 20px;
+    border-top: 1px solid #e4e8ef;
+    /* subtle divider from content */
+}
+
+.footer-links {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.footer-column h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #0d63f3;
+    /* primary blue for links on white */
+    text-decoration: none;
+}
+
+.footer-column ul li a:hover {
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.social-media a {
+    color: #0d63f3;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.social-media a:hover {
+    text-decoration: underline;
+}
+
+/* footer base utility (replaces inline style) */
+.footer__base {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+
+/* (All .uudai* styles removed as section was deleted) */
+
+/* Action links under the Dịch Vụ Thẻ title */
+/* (Action links under removed title eliminated) */
+
+/* Responsive nav stack */
+@media (max-width: 880px) {
+    .main-nav-bar__list {
+        flex-wrap: wrap;
+        gap: 1.25rem 1.75rem;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 820px) {
+    /* slide captions removed */
+
+    .ad-slide__caption h3 {
+        font-size: 1.05rem;
+    }
+
+    .ad-slider__nav {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 560px) {
+    .ad-slide__caption {
+        position: static;
+        background: linear-gradient(135deg, #0d63f3, #7048e8);
+        margin: .5rem auto 1rem;
+        border-radius: 14px;
+    }
+
+    .ad-slide {
+        max-height: 360px;
+    }
+
+    .ad-slider__nav {
+        display: none;
+    }
+
+    .ad-slider__dots {
+        bottom: 6px;
+    }
+
+    .main-nav-bar__tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main-nav-bar__tabs [role="tab"] {
+        flex: 0 0 50%;
+        /* show 2 per row on very small screens */
+        min-width: 92px;
+        padding: .6rem .9rem;
+    }
+
+    .main-nav-bar__tabs [role="tab"] .tab-icon {
+        margin-bottom: .25rem;
+    }
+
+    .main-nav-bar__tabs [role="tab"] .tab-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@media (max-width: 720px) {
+    .primary-nav__list {
+        gap: 1rem;
+        font-size: .85rem;
+    }
+}
+
+/* .hero--gradient styles removed */
+
+/* Generic focus styles for icon buttons */
+.btn-icon:focus-visible {
+    outline: 2px solid #0d63f3;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* Skip link accessibility helper */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 8px;
+    background: #0d63f3;
+    color: #fff;
+    padding: .5rem .75rem;
+    border-radius: 6px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: top .2s ease;
+}
+
+.skip-link:focus {
+    top: 8px;
+}
+
+/* Tab title and CTA area styles removed — CTA markup deleted. */

