@@ -56,14 +56,21 @@
         <!-- Form -->
         <form id="otpForm" novalidate>
           <div class="d-flex gap-2 justify-content-center my-3" aria-label="Nhập 6 số OTP">
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
-              aria-label="Số 1" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 2" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 3" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 4" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 5" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 6" />
+            <input class="otp-input" name="otp_digit_0" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              autocomplete="one-time-code" aria-label="Số 1" />
+            <input class="otp-input" name="otp_digit_1" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              aria-label="Số 2" />
+            <input class="otp-input" name="otp_digit_2" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              aria-label="Số 3" />
+            <input class="otp-input" name="otp_digit_3" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              aria-label="Số 4" />
+            <input class="otp-input" name="otp_digit_4" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              aria-label="Số 5" />
+            <input class="otp-input" name="otp_digit_5" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              aria-label="Số 6" />
           </div>
+
+          <input type="hidden" name="otp" id="otpValue">
 
           <div class="text-center mb-3">
             <span class="text-muted">Mã sẽ hết hạn trong </span>
@@ -254,7 +261,10 @@
       e.preventDefault();
       clearError();
 
+      // Aggregate the 6 separate OTP digit inputs into the hidden `#otpValue`
       const otp = getOTP();
+      const hidden = document.getElementById('otpValue');
+      if (hidden) hidden.value = otp;
       if (otp.length !== 6) {
         showError('Vui lòng nhập đủ 6 số OTP.');
         return;
