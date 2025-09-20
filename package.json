@@ -5,8 +5,9 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "build": "npm run build || true",
+        "build": "echo \"No build step for this project\"",
         "bild": "npm run build",
+        "test": "echo \"No tests configured. Add tests in test/ and update package.json accordingly.\"",
         "dev": "nodemon server.js",
         "pm2:start": "pm2 start ecosystem.config.js --env production",
         "pm2:stop": "pm2 stop ecosystem.config.js",

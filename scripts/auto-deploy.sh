@@ -43,15 +43,27 @@ chown $DEPLOY_USER:$DEPLOY_USER "$SSH_DIR"
 chmod 700 "$SSH_DIR"
 
 KEY_FILE="$SSH_DIR/id_ed25519"
+PUB_OUT="/root/deploy-key-${DEPLOY_USER}.pub"
 if [ ! -f "$KEY_FILE" ]; then
   echo "Generating SSH key for $DEPLOY_USER"
   sudo -u $DEPLOY_USER ssh-keygen -t ed25519 -f "$KEY_FILE" -N "" -q
   chmod 600 "$KEY_FILE"
 fi
 
+# Copy public key to a well-known root-readable file for easy copy/paste
+sudo -u $DEPLOY_USER cat "$KEY_FILE.pub" > "$PUB_OUT"
+chmod 644 "$PUB_OUT" || true
+
 echo
-echo "Public key for $DEPLOY_USER (add this to your Git host Deploy keys / SSH keys):"
+echo "Public key for $DEPLOY_USER was written to: $PUB_OUT"
+echo "Also printed below (copy into GitHub -> Settings -> Deploy keys):"
+echo
 sudo -u $DEPLOY_USER cat "$KEY_FILE.pub"
+echo
+echo "GitHub / Git host instructions (quick):"
+echo " 1) Open your repo on GitHub -> Settings -> Deploy keys"
+echo " 2) Click 'Add deploy key', paste the public key above, give it a name"
+echo " 3) (Optional) Allow write access if you want server to push back"
 echo
 
 if [ -z "$REPO_URL" ] || [ "$REPO_URL" = "skip" ]; then
@@ -73,11 +85,16 @@ if [[ "$REPO_URL" =~ ^git@([^:]+): ]]; then
   echo "Resolved IPs for $REPO_HOST: ${HOST_IPS:-<none>}"
 
   # Add host key(s) to known_hosts for deploy user
-  echo "Adding host keys to $SSH_DIR/known_hosts"
+  echo "Adding host keys to $SSH_DIR/known_hosts (idempotent)"
+  touch "$SSH_DIR/known_hosts"
   for ip in $HOST_IPS; do
-    sudo -u $DEPLOY_USER ssh-keyscan -H "$ip" >> "$SSH_DIR/known_hosts" 2>/dev/null || true
+    if ! sudo -u $DEPLOY_USER grep -q "$ip" "$SSH_DIR/known_hosts" 2>/dev/null; then
+      sudo -u $DEPLOY_USER ssh-keyscan -H "$ip" >> "$SSH_DIR/known_hosts" 2>/dev/null || true
+    fi
   done
-  sudo -u $DEPLOY_USER ssh-keyscan -H "$REPO_HOST" >> "$SSH_DIR/known_hosts" 2>/dev/null || true
+  if ! sudo -u $DEPLOY_USER grep -q "$REPO_HOST" "$SSH_DIR/known_hosts" 2>/dev/null; then
+    sudo -u $DEPLOY_USER ssh-keyscan -H "$REPO_HOST" >> "$SSH_DIR/known_hosts" 2>/dev/null || true
+  fi
   chown $DEPLOY_USER:$DEPLOY_USER "$SSH_DIR/known_hosts" || true
   chmod 644 "$SSH_DIR/known_hosts" || true
 
