@@ -1,6 +1,12 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
+  command = "npm run build"
+
+[context.production]
+# Production deploy branch is usually set in the Netlify UI (Site settings -> Deploys -> Branch to deploy).
+# If you want to store build-time environment variables for production builds, set them in the Netlify UI
+# or use the [context.production.environment] table here for non-secret defaults.
 
 [[redirects]]
   from = "/api/*"
