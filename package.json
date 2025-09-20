@@ -5,7 +5,7 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "build": "echo \"No build step required; static site in public/\"",
+        "build": "npm run build || true",
         "bild": "npm run build",
         "dev": "nodemon server.js",
         "pm2:start": "pm2 start ecosystem.config.js --env production",

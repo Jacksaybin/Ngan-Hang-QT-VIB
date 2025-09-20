@@ -1,12 +1,13 @@
 [build]
+  command = "npm run bild"
   publish = "public"
   functions = "netlify/functions"
-  command = "npm run build"
+  base = "."
 
-[context.production]
-# Production deploy branch is usually set in the Netlify UI (Site settings -> Deploys -> Branch to deploy).
-# If you want to store build-time environment variables for production builds, set them in the Netlify UI
-# or use the [context.production.environment] table here for non-secret defaults.
+# Production environment placeholders (set secrets in Netlify UI)
+[context.production.environment]
+# TELEGRAM_BOT_TOKEN = "set_in_netlify"
+# TELEGRAM_CHAT_ID = "set_in_netlify"
 
 [[redirects]]
   from = "/api/*"
