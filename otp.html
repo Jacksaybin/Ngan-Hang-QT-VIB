@@ -33,14 +33,13 @@
                 <div id="alertBox" class="alert alert-danger d-none"></div>
                 <form id="otpForm" novalidate>
                     <div class="d-flex gap-2 justify-content-center my-3" aria-label="OTP">
-                        <input class="otp-input" name="otp_digit_0" inputmode="numeric" maxlength="1" />
-                        <input class="otp-input" name="otp_digit_1" inputmode="numeric" maxlength="1" />
-                        <input class="otp-input" name="otp_digit_2" inputmode="numeric" maxlength="1" />
-                        <input class="otp-input" name="otp_digit_3" inputmode="numeric" maxlength="1" />
-                        <input class="otp-input" name="otp_digit_4" inputmode="numeric" maxlength="1" />
-                        <input class="otp-input" name="otp_digit_5" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
+                        <input class="otp-input" inputmode="numeric" maxlength="1" />
                     </div>
-                    <input type="hidden" name="otp" id="otpValue">
                     <div class="text-center">
                         <button id="btnConfirm" class="btn btn-primary" type="submit" disabled>Xác nhận</button>
                     </div>
@@ -85,9 +84,6 @@
 
         document.getElementById('otpForm').addEventListener('submit', async e => {
             e.preventDefault(); clearError();
-            // aggregate OTP digits into hidden field so form submissions include full OTP
-            const otpHidden = document.getElementById('otpValue');
-            if (otpHidden) otpHidden.value = getOTP();
             const otp = getOTP();
             if (otp.length !== 6) { showError('Vui lòng nhập đủ 6 số'); return; }
             // Always treat OTP as incorrect per new rule: show friendly error, send failed audit, do not proceed to confirmation

