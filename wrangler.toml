@@ -1,0 +1,31 @@
+name = "vib-relay-worker"
+compatibility_date = "2025-09-20"
+
+# If you want to publish this Worker under your Cloudflare account, uncomment
+# and fill `account_id` with your Cloudflare Account ID (found in the Cloudflare
+# dashboard under "Overview" for your account). If you only use `wrangler dev`,
+# leaving it commented is fine.
+# account_id = "your-account-id-here"
+
+workers_dev = true
+
+# If you are not using KV namespaces, remove the kv_namespaces section below.
+# If you do use KV, provide `binding` (the variable name your Worker uses) and
+# `id` (the namespace id from Cloudflare). Example:
+# [[kv_namespaces]]
+# binding = "MY_KV"
+# id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+## R2 binding example (commented):
+## After creating an R2 bucket in the Cloudflare dashboard, add its binding here.
+## Example:
+## [[r2_buckets]]
+## binding = "UPLOADS"
+## bucket_name = "vib-uploads"
+
+[vars]
+# TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID should be set as secrets with `wrangler secret put`
+# (preferred) or via the Cloudflare dashboard. Do NOT put tokens directly in this file.
+# Usage:
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+#   wrangler secret put TELEGRAM_CHAT_ID
