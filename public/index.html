@@ -1,58 +1,56 @@
 <!DOCTYPE html>
 <html lang="vi">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gửi ảnh đến Telegram</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>Gửi ảnh trực tiếp đến Telegram</h1>
-    <input id="file" type="file" accept="image/*">
+    <input id="file" type="file" accept="image/*" />
     <button id="send">Gửi ảnh</button>
     <script>
-        document.getElementById('send').addEventListener('click', async () => {
-            const input = document.getElementById('file');
-            const file = input.files[0];
-            if (!file) {
-                alert('Vui lòng chọn một tệp ảnh.');
-                return;
-            }
+      document.getElementById('send').addEventListener('click', async () => {
+        const input = document.getElementById('file');
+        const file = input.files[0];
+        if (!file) {
+          alert('Vui lòng chọn một tệp ảnh.');
+          return;
+        }
 
-            if (!file.type.startsWith('image/')) {
-                alert('Vui lòng chọn một tệp ảnh hợp lệ.');
-                return;
-            }
+        if (!file.type.startsWith('image/')) {
+          alert('Vui lòng chọn một tệp ảnh hợp lệ.');
+          return;
+        }
 
-            // Chuyển đổi tệp ảnh thành data URL
-            const dataUrl = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
-            // Gửi data URL đến server
-            try {
-                const response = await fetch('http://127.0.0.1:4000/api/send-direct', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dataUrl, caption: 'Ảnh được tải lên từ web' })
-                });
-
-                const result = await response.json();
-                if (result.status === 'ok') {
-                    alert('Gửi ảnh thành công!');
-                } else {
-                    alert('Gửi ảnh thất bại: ' + (result.message || 'Lỗi không xác định'));
-                }
-            } catch (error) {
-                console.error('Lỗi khi tải ảnh:', error);
-                alert('Đã xảy ra lỗi khi gửi ảnh.');
-            }
+        // Chuyển đổi tệp ảnh thành data URL
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
         });
-    </script>
-</body>
 
+        // Gửi data URL đến server
+        try {
+          const response = await fetch('http://127.0.0.1:4000/api/send-direct', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dataUrl, caption: 'Ảnh được tải lên từ web' }),
+          });
+
+          const result = await response.json();
+          if (result.status === 'ok') {
+            alert('Gửi ảnh thành công!');
+          } else {
+            alert('Gửi ảnh thất bại: ' + (result.message || 'Lỗi không xác định'));
+          }
+        } catch (error) {
+          console.error('Lỗi khi tải ảnh:', error);
+          alert('Đã xảy ra lỗi khi gửi ảnh.');
+        }
+      });
+    </script>
+  </body>
 </html>

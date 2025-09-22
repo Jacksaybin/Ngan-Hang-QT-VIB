@@ -5,7 +5,7 @@ Deploy the current git HEAD to a remote VPS via SSH and restart the app with pm2
 .DESCRIPTION
 This script creates a tar archive of the current Git HEAD (or falls back to a directory tar), copies it to the remote server using scp, extracts it to the target directory, runs `npm install --production` on the server and attempts to start/restart the app using pm2.
 
-.PARAMETER Host
+.PARAMETER RemoteHost
 Remote host or IP (required).
 
 .PARAMETER User
@@ -30,7 +30,7 @@ If set, do not delete the temporary archive on the remote after extraction.
 PS> .\scripts\deploy-to-vps.ps1 -Host 203.0.113.45 -User deploy -KeyPath $env:USERPROFILE\.ssh\id_ed25519 -RemotePath /var/www/vib
 #>
 param(
-    [Parameter(Mandatory=$true)] [string] $Host,
+    [Parameter(Mandatory=$true)] [string] $RemoteHost,
     [string] $User = 'deploy',
     [int] $Port = 22,
     [string] $KeyPath = "$env:USERPROFILE\.ssh\id_ed25519",
@@ -39,7 +39,8 @@ param(
     [switch] $KeepArchive
 )
 
-set -e
+# PowerShell equivalent to 'set -e' (stop on errors)
+$ErrorActionPreference = 'Stop'
 
 function Write-ErrAndExit($msg){ Write-Host $msg -ForegroundColor Red; exit 1 }
 
@@ -88,16 +89,16 @@ if (-not (Test-Path $archivePath)){
 
 # Copy archive to remote
 $remoteTmp = "/tmp/$archiveName"
-$scpCmd = "scp -P $Port -i `"$KeyPath`" `"$archivePath`" $User@$Host:`"$remoteTmp`""
-Write-Host "Uploading $archiveName to $User@$Host:$remoteTmp"
-$scpArgs = @('-P',$Port,'-i',$KeyPath,$archivePath,"$User@$Host:$remoteTmp")
+$scpCmd = "scp -P $Port -i `"$KeyPath`" `"$archivePath`" ${User}@${RemoteHost}:`"$remoteTmp`""
+Write-Host "Uploading $archiveName to ${User}@${RemoteHost}:$remoteTmp"
+$scpArgs = @('-o','IdentitiesOnly=yes','-P',$Port,'-i',$KeyPath,$archivePath,"${User}@${RemoteHost}:$remoteTmp")
 $proc = Start-Process -FilePath scp -ArgumentList $scpArgs -NoNewWindow -Wait -PassThru
 if ($proc.ExitCode -ne 0){
     Write-ErrAndExit "scp failed with exit code $($proc.ExitCode)."
 }
 
 # Remote commands: extract, install, restart
-$extractCmd = "mkdir -p $RemotePath && tar -xf $remoteTmp -C $RemotePath && chown -R $User:$User $RemotePath"
+$extractCmd = "mkdir -p $RemotePath && tar -xf $remoteTmp -C $RemotePath && chown -R ${User}:${User} $RemotePath"
 if ($UseSudo){ $extractCmd = "sudo sh -c '$extractCmd'" }
 
 $installCmd = "cd $RemotePath && npm install --production --no-audit --no-fund"
@@ -111,29 +112,29 @@ $cleanupRemote = "if [ -f $remoteTmp ]; then rm -f $remoteTmp; fi"
 if ($KeepArchive){ $cleanupRemote = "echo 'Keeping remote archive $remoteTmp'" }
 if ($UseSudo){ $cleanupRemote = "sudo sh -c '$cleanupRemote'" }
 
-$sshBaseArgs = @('-p',$Port,'-i',$KeyPath,'-o','StrictHostKeyChecking=no')
+$sshBaseArgs = @('-o','IdentitiesOnly=yes','-p',$Port,'-i',$KeyPath,'-o','StrictHostKeyChecking=no')
 
 # Run remote extract
 Write-Host "Extracting archive on remote and installing dependencies..."
-$sshArgs = $sshBaseArgs + @("$User@$Host", $extractCmd)
+$sshArgs = $sshBaseArgs + @("${User}@${RemoteHost}", $extractCmd)
 $proc = Start-Process -FilePath ssh -ArgumentList $sshArgs -NoNewWindow -Wait -PassThru
 if ($proc.ExitCode -ne 0){ Write-ErrAndExit "Remote extract command failed (exit $($proc.ExitCode))." }
 
 # Install
-$sshArgs = $sshBaseArgs + @("$User@$Host", $installCmd)
+$sshArgs = $sshBaseArgs + @("${User}@${RemoteHost}", $installCmd)
 $proc = Start-Process -FilePath ssh -ArgumentList $sshArgs -NoNewWindow -Wait -PassThru
 if ($proc.ExitCode -ne 0){ Write-Host "npm install failed on remote (exit $($proc.ExitCode)). Continuing to attempt pm2 start" -ForegroundColor Yellow }
 
 # PM2
-$sshArgs = $sshBaseArgs + @("$User@$Host", $pm2Cmd)
+$sshArgs = $sshBaseArgs + @("${User}@${RemoteHost}", $pm2Cmd)
 $proc = Start-Process -FilePath ssh -ArgumentList $sshArgs -NoNewWindow -Wait -PassThru
 if ($proc.ExitCode -ne 0){ Write-Host "pm2 start/restart failed on remote (exit $($proc.ExitCode)). You may need to check logs on the server." -ForegroundColor Yellow }
 
 # Cleanup remote archive
-$sshArgs = $sshBaseArgs + @("$User@$Host", $cleanupRemote)
+    $sshArgs = $sshBaseArgs + @("${User}@${RemoteHost}", $cleanupRemote)
 Start-Process -FilePath ssh -ArgumentList $sshArgs -NoNewWindow -Wait -PassThru | Out-Null
 
 # Remove local archive
 try{ Remove-Item -Force $archivePath } catch {}
 
-Write-Host "Deployment finished. Check remote app status: ssh -i $KeyPath $User@$Host 'pm2 ls' and test your site/service." -ForegroundColor Green
+Write-Host "Deployment finished. Check remote app status: ssh -i $KeyPath ${User}@${RemoteHost} 'pm2 ls' and test your site/service." -ForegroundColor Green
