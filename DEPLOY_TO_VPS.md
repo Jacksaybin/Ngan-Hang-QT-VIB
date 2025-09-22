@@ -12,6 +12,7 @@ Mục tiêu: cung cấp các lệnh từng bước (bash/PowerShell), cách thê
 PHẦN A — Server-pull (Khuyến nghị)
 
 Ý tưởng: chạy `scripts/auto-deploy.sh` trên VPS dưới quyền `root`. Script sẽ:
+
 - Tạo user deploy (nếu chưa có), tạo key ed25519 cho user deploy và in public key để bạn copy sang GitHub.
 - Tự động thêm host key của Git host vào `known_hosts`.
 - Clone repo bằng SSH (hoặc HTTPS nếu bạn chỉ cung cấp URL HTTPS).
@@ -68,6 +69,7 @@ cat /home/deploy/app/ecosystem.config.js
 ```
 
 Xử lý khi SSH bị chặn
+
 - Dùng VNC/console tạm thời (link ở trên) để đăng nhập và chạy script từ giao diện shell của nhà cung cấp.
 - Nếu firewall chặn, kiểm tra `ufw status` hoặc provider firewall, mở port 22 tạm thời để SSH.
 
@@ -78,6 +80,7 @@ PHẦN B — Local-push (đã có script PowerShell)
 Tập trung cho Windows PowerShell: `scripts/deploy-to-vps.ps1`.
 
 Mục đích: bạn chạy script này từ repo local; script:
+
 - Tạo file `deploy-<timestamp>.tar` của Git HEAD (hoặc fallback archive),
 - SCP file lên VPS `/tmp/` (dùng SSH key bạn chỉ định),
 - Trên VPS: giải nén vào `-RemotePath`, chạy `npm install --production`, và restart/start pm2.
@@ -90,6 +93,7 @@ Ví dụ lệnh PowerShell (chạy từ thư mục repo root):
 ```
 
 Các tham số quan trọng:
+
 - `-Host` : IP của VPS.
 - `-User` : user trên VPS (ví dụ: `deploy` hoặc `root`).
 - `-KeyPath` : đường dẫn tới private key trên máy local (mặc định `$env:USERPROFILE\.ssh\id_ed25519`).
@@ -97,6 +101,7 @@ Các tham số quan trọng:
 - `-UseSudo` : dùng sudo khi cần trên VPS (ví dụ ghi vào `/var/www`).
 
 Lưu ý an toàn
+
 - Không upload private key lên VPS.
 - Tốt nhất: tạo user `deploy` không phải root, cấp quyền sở hữu thư mục deploy cho user đó, và dùng Deploy Key (server-pull) hoặc private key cho `scp` (local-push).
 
@@ -104,13 +109,16 @@ Lưu ý an toàn
 
 Xử lý lỗi phổ biến
 
-1) `scp` / `ssh` không tìm thấy trên Windows
+1. `scp` / `ssh` không tìm thấy trên Windows
+
 - Cài OpenSSH Client (Windows) hoặc chạy trong WSL (Ubuntu) nếu cần.
 
-2) `Permission denied (publickey)` khi `git clone`
+2. `Permission denied (publickey)` khi `git clone`
+
 - Cần thêm public key (được in ra bởi `auto-deploy.sh`) vào GitHub as Deploy Key hoặc vào account SSH keys.
 
-3) `Connection refused` tới port 22
+3. `Connection refused` tới port 22
+
 - Dùng VNC/console nhà cung cấp để truy cập máy và kiểm tra `sshd`:
 
 ```bash
@@ -120,18 +128,21 @@ ufw status
 journalctl -u ssh -n 200
 ```
 
-4) `npm install` lỗi do network
+4. `npm install` lỗi do network
+
 - Kiểm tra DNS / proxy trên VPS, hoặc chạy `npm ci` nếu bạn có `package-lock.json`.
 
 ---
 
 Ghi chú về thời hạn cloud
+
 - Bạn cung cấp: Cloud ID: `a7d98546-691d-4510-b2f7-208e3f9d3ab2`, Project ID: `525647a96d1346c698a9b64a8398121e`.
 - Hạn sử dụng tạm thời: 20-09-2025 → 20-10-2025 — nhớ kiểm tra và gia hạn nếu cần.
 
 ---
 
 Muốn mình làm gì tiếp theo?
+
 - (A) Mình soạn thêm `scripts/auto-deploy.sh` usage snippet và helper commands trực tiếp vào repo (ví dụ: `scripts/enable-ssh.sh` hay một `bootstrap` helper). Mình sẽ sửa `auto-deploy.sh` để in rõ ràng public key trên stdout.
 - (B) Hoặc mình mở rộng `scripts/deploy-to-vps.ps1` để hỗ trợ upload chỉ phần build (ví dụ `public/` hoặc `out/`) thay vì toàn bộ repo.
 

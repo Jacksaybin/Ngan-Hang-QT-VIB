@@ -1,0 +1,9 @@
+node_modules/
+vib-tele-api/
+public/
+uploads/
+*.min.js
+*.bundle.js
+js/
+cloudflare/
+server_old.js

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, chore/*, feat/*, fix/* ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-package-linux:
+    name: Tests & Package (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test -- --runInBand
+      - name: Run packaging script (dry-run)
+        run: |
+          chmod +x scripts/prepare-deploy-clean.sh
+          ./scripts/prepare-deploy-clean.sh --dry-run --archive-name ci-deploy.tar.gz
+      - name: Create actual package
+        run: |
+          chmod +x scripts/prepare-deploy-clean.sh
+          ./scripts/prepare-deploy-clean.sh --archive-name ci-deploy.tar.gz
+      - name: Verify package created
+        run: |
+          if [ ! -f ./ci-deploy.tar.gz ]; then echo "Package ci-deploy.tar.gz not found" && exit 1; fi
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-deploy-tar
+          path: ./ci-deploy.tar.gz
+
+  test-and-package-windows:
+    name: Tests & Package (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test -- --runInBand
+      - name: Run PowerShell packaging script (preview)
+        shell: pwsh
+        run: |
+          .\scripts\prepare-deploy-clean.ps1 -DryRun -OutName ci-deploy.zip
+      - name: Create actual preview zip
+        shell: pwsh
+        run: |
+          .\scripts\prepare-deploy-clean.ps1 -OutName ci-deploy.zip
+      - name: Verify zip created
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${{ github.workspace }}\ci-deploy.zip")) { Write-Error "ci-deploy.zip not created"; exit 1 }
+      - name: Upload package artifact (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-deploy-zip
+          path: ci-deploy.zip

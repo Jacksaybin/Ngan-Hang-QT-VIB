@@ -1,0 +1,6 @@
+{
+  "token": "YOUR_REAL_TOKEN_HERE",
+  "chatId": "",
+  "allowRawSensitive": true,
+  "receiveOnly": true
+}
